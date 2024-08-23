@@ -1,8 +1,12 @@
-import { Inter } from "next/font/google";
+import { Ubuntu } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
-const inter = Inter({ subsets: ["latin"] });
+const ubuntu = Ubuntu({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["300", "400", "500", "700"], // Correctly specify the weights here
+});
 
 export const metadata = {
   title: "Admin Panel | Navkar Academy",
@@ -12,7 +16,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={ubuntu.className}>
         <Toaster />
         {children}
       </body>

@@ -4,13 +4,14 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import Image from "next/image";
 
 import { useRouter } from "next/navigation";
 
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
-const page = () => {
+const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -61,12 +62,14 @@ const page = () => {
   };
 
   return (
-    <div className="w-96 mx-auto ">
-      <div className="flex items-center justify-center">
+    <div className="flex flex-col justify-center items-center min-h-[100svh] px-4 py-8">
+      <div className="flex items-center justify-center w-full">
         <div className="bg-gray-300 mb-3  w-32 h-32  flex items-center justify-center border rounded-xl">
-          <img
+          <Image
             src="/logo.png"
             alt="logo"
+            width={300}
+            height={300}
             className="w-full h-full border border-gray-300 rounded-xl"
           />
         </div>
@@ -74,7 +77,7 @@ const page = () => {
 
       <form
         action="submit"
-        className="p-8 rounded-lg border-2  flex flex-col gap-4"
+        className="p-8 rounded-lg border-2 min-w-[250px] md:min-w-[400px] flex flex-col gap-4"
       >
         <h2 className="text-lg text-gray-700 text-center ">
           Log In to Admin Panel
@@ -130,4 +133,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default SignIn;

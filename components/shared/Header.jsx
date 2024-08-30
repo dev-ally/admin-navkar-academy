@@ -13,11 +13,28 @@ import {
 } from "../ui/sheet";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { auth } from "@/firebase/config";
+import { signOut } from "firebase/auth";
 
 const Header = () => {
   const pathname = usePathname();
   console.log(pathname, typeof pathname);
+
+  const router = useRouter();
+
+  const signOutHandler = () => {
+    console.log("SignOut Handler");
+    signOut(auth)
+      .then(() => {
+        router.push("/sign-in");
+        // Sign-out successful.
+      })
+      .catch((error) => {
+        console.log("Error Occured!", error);
+        // An error happened.
+      });
+  };
 
   return (
     <Container>
@@ -36,7 +53,7 @@ const Header = () => {
             </Link>
           </div>
 
-          <div className="hidden lg:flex justify-end items-start gap-20">
+          <div className="hidden lg:flex justify-center items-center gap-20">
             {/* <div
               className={
                 pathname === "/"
@@ -63,6 +80,11 @@ const Header = () => {
               }
             >
               <Link href="/dashboard/events">Events</Link>
+            </div>
+            <div>
+              <Button variant="header" onClick={signOutHandler}>
+                LogOut
+              </Button>
             </div>
             {/* <div className="custom-header-hover-underline">
                 <a
@@ -107,6 +129,15 @@ const Header = () => {
                       }`}
                     >
                       <Link href="/dashboard/events">Events</Link>
+                    </div>
+                    <div
+                      className={`text-black text-lg tracking-wide ${
+                        pathname === "/dashboard/events" && "font-semibold"
+                      }`}
+                    >
+                      <Button variant="header" onClick={signOutHandler}>
+                        LogOut
+                      </Button>
                     </div>
                   </div>
                 </SheetHeader>

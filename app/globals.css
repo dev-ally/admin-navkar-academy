@@ -4,7 +4,10 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --accent: 20, 88%, 58%;
+    --accent-foreground: 0, 0%, 96%;
+    --accent-background: 30, 100%, 96%;
+    --background: 0, 0%, 97%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -16,8 +19,6 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
@@ -78,4 +79,133 @@
   .landing-center-div a {
     @apply border-2 border-black px-6 py-3 rounded-lg text-lg font-semibold hover:bg-black hover:text-white transition-all duration-300 ease-in-out;
   }
+}
+
+/* Header */
+
+/* For Webkit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 0 0 10px 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--accent));
+}
+
+.custom-header-underline {
+  display: inline;
+  background: linear-gradient(10deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)) 0
+    1.25em/100% 8px repeat-x;
+  border-radius: 6px;
+  padding: 0 6px;
+}
+
+.custom-header-hover-underline {
+  transition: all 0.3s ease-in-out;
+  padding: 0 6px;
+}
+
+.custom-header-hover-underline:hover {
+  /* Add rounding to the borders of the underline */
+  display: inline;
+  background: linear-gradient(10deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)) 0
+    1.25em/100% 8px repeat-x;
+  border-radius: 6px;
+}
+
+/* Toppers List */
+
+.sortable-list {
+  width: 425px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 13px 46px rgba(0, 0, 0, 0.1);
+}
+
+.input-field {
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 14px;
+  font-size: 16px;
+  width: 100%;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.1);
+}
+
+.add-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.1);
+}
+
+.add-button:hover {
+  background-color: #0056b3;
+}
+
+.sortable-list .item {
+  margin-top: 1rem;
+  border: 1px solid #ccc;
+  justify-content: space-between;
+  list-style: none;
+  display: flex;
+  cursor: move;
+  background: #ffffff;
+  align-items: center;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 10px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.item .details {
+  display: flex;
+  align-items: center;
+}
+
+.item .details img {
+  height: 60px;
+  width: 60px;
+  pointer-events: none;
+  margin-right: 15px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.item .details span {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.item i {
+  color: #474747;
+  font-size: 1.13rem;
+}
+
+.item.dragging {
+  opacity: 0.6;
+}
+
+.item.dragging .details,
+.item.dragging i {
+  opacity: 0.8;
+  transform: scale(1.02);
+  background: #f0f0f0;
 }

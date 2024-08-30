@@ -1,5 +1,6 @@
 "use client";
 
+import Header from "@/components/shared/Header";
 import { auth } from "@/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -25,7 +26,13 @@ const DashboardLayout = ({ children }) => {
   if (authUser === null) return <div>Loading</div>;
   if (!authUser) return <div>Redirecting</div>;
 
-  if (authUser) return <>{children}</>;
+  if (authUser)
+    return (
+      <>
+        <Header />
+        {children}
+      </>
+    );
 };
 
 export default DashboardLayout;

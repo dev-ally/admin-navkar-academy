@@ -29,7 +29,7 @@ export default function Home() {
       <div className="landing-center-div">
         <h1>Go to the Admin Panel.</h1>
         <Link href="/dashboard">Dashboard</Link>
-        <Loading />
+        {/* <Loading /> */}
       </div>
     );
   }

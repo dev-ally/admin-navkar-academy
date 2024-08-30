@@ -15,19 +15,24 @@ const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const signInHandler = (e) => {
+  const signInHandler = async (e) => {
     e.preventDefault();
+    let message = toast.loading("Signing in...");
     if (email === "" || password === "") {
-      alert("Please fill in all the fields");
+      // alert("Please fill in all the fields");
+      toast.error("Please enter all the fields", {
+        id: message,
+      });
       return;
     } else {
       console.log(email, password);
-      signInWithEmailAndPassword(auth, email, password)
+      await signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
-          toast.success("Admin signed in successfully");
-
+          toast.success("Admin signed in successfully", {
+            id: message,
+          });
           console.log("User:", user);
           router.push("/");
           // ...
@@ -35,28 +40,43 @@ const SignIn = () => {
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
-          toast.error("Invalid credentials");
+          toast.error("Invalid credentials", {
+            id: message,
+          });
           console.log("Error signing in:", errorCode, errorMessage);
         });
     }
     setEmail("");
     setPassword("");
   };
-  const resetHandler = () => {
-    if (email === "") {
-      alert("Please enter your email");
-      return;
-    }
+
+  const resetHandler = async () => {
+    // if (email === "") {
+    //   alert("Please enter your email");
+    //   return;
+    // }
+    let emailToReset = prompt("Enter your email to reset password");
     console.log("Resetting password");
-    sendPasswordResetEmail(auth, email)
+    let loading = toast.loading("Sending Reset Password Email...");
+    await sendPasswordResetEmail(auth, emailToReset)
       .then(() => {
-        alert("Email sent if you are already registered");
+        // alert("Email sent if you are already registered");
+        toast.success("Email sent if you are already registered", {
+          id: loading,
+        });
       })
       .catch((err) => {
         if (err.code === "auth/user-not-found") {
-          alert("You don't have an account with this email");
+          // alert("You don't have an account with this email");
+          toast.error("You don't have an account with this email", {
+            id: loading,
+          });
         } else {
-          alert(err.message);
+          // alert(err.message);
+
+          toast.error(err.message, {
+            id: loading,
+          });
         }
       });
   };

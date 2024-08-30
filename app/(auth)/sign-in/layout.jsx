@@ -1,5 +1,6 @@
 "use client";
 
+import Loading from "@/components/shared/Loading";
 import { auth } from "@/firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -22,8 +23,8 @@ const SignInLayout = ({ children }) => {
     return () => unsubscribe();
   }, [router]);
 
-  if (authUser === null) return <div>Loading</div>;
-  if (!authUser) return <div>Redirecting</div>;
+  if (authUser === null) return <Loading />;
+  if (!authUser) return <Loading type="redirecting" />;
 
   if (authUser) return <>{children}</>;
 };

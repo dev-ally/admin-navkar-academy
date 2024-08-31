@@ -4,38 +4,26 @@ import React, { useEffect, useState } from "react";
 import { RiDragMove2Line } from "react-icons/ri";
 
 const App = () => {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: "Kristina Zasiadko",
-      image:
-        "https://media.geeksforgeeks.org/wp-content/uploads/20230816223829/geeksgforgeeks-logo-1.png",
-    },
-    {
-      id: 2,
-      name: "John Doe",
-      image:
-        "https://media.geeksforgeeks.org/wp-content/uploads/20230721212159/gfg-logo.jpeg",
-    },
-    {
-      id: 3,
-      name: "Jane Smith",
-      image:
-        "https://media.geeksforgeeks.org/wp-content/uploads/20230909123918/GeeksforGeeks-Wide-logo-black.png",
-    },
-    // Add more items here
-  ]);
-
+  const [topperLists, setTopperLists] = useState({});
   const [draggingItem, setDraggingItem] = useState(null);
-  const [newItemName, setNewItemName] = useState("");
-  const [newItemImage, setNewItemImage] = useState("");
+  const [newTop3, setNewTop3] = useState({
+    name: "",
+    percentage: "",
+    image: "",
+    year: "",
+  });
+  const [newOtherTopper, setNewOtherTopper] = useState({
+    name: "",
+    percentage: "",
+    year: "",
+  });
 
   useEffect(() => {
-    console.log("USEEFFECT Items:", items);
-  }, [items]);
+    console.log("Updated Topper Lists:", topperLists);
+  }, [topperLists]);
 
-  const handleDragStart = (e, item) => {
-    setDraggingItem(item);
+  const handleDragStart = (e, item, listType, year) => {
+    setDraggingItem({ item, listType, year });
     e.dataTransfer.setData("text/plain", "");
   };
 
@@ -47,83 +35,250 @@ const App = () => {
     e.preventDefault();
   };
 
-  const handleDrop = (e, targetItem) => {
+  const handleDrop = (e, targetItem, listType, year) => {
     if (!draggingItem) return;
 
-    const currentIndex = items.indexOf(draggingItem);
-    const targetIndex = items.indexOf(targetItem);
+    const {
+      item: draggedItem,
+      listType: draggedListType,
+      year: draggedYear,
+    } = draggingItem;
 
-    if (currentIndex !== -1 && targetIndex !== -1) {
-      const newItems = [...items];
-      newItems.splice(currentIndex, 1);
-      newItems.splice(targetIndex, 0, draggingItem);
-      setItems(newItems);
+    if (draggedYear !== year || draggedListType !== listType) return;
+
+    const currentIndex = topperLists[year][listType].findIndex(
+      (i) => i.id === draggedItem.id
+    );
+    const targetIndex = topperLists[year][listType].findIndex(
+      (i) => i.id === targetItem.id
+    );
+
+    if (currentIndex === -1 || targetIndex === -1) return;
+
+    const newList = [...topperLists[year][listType]];
+
+    // Swap items
+    [newList[currentIndex], newList[targetIndex]] = [
+      newList[targetIndex],
+      newList[currentIndex],
+    ];
+
+    newList.forEach((item, index) => (item.index = index + 1));
+
+    setTopperLists((prev) => ({
+      ...prev,
+      [year]: {
+        ...prev[year],
+        [listType]: newList,
+      },
+    }));
+
+    setDraggingItem(null);
+  };
+
+  const handleInputChange = (e, listType) => {
+    const { name, value } = e.target;
+    if (listType === "top3") {
+      setNewTop3((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setNewOtherTopper((prev) => ({ ...prev, [name]: value }));
     }
-    console.log("Dropped", draggingItem, "on", targetItem);
-    console.log("New Items:", items);
   };
 
-  const handleNameChange = (e) => {
-    setNewItemName(e.target.value);
+  const addTopper = (listType) => {
+    const newItem =
+      listType === "top3" ? { ...newTop3 } : { ...newOtherTopper };
+
+    const year = newItem.year;
+    if (!year) return;
+
+    const newId =
+      Math.max(
+        ...Object.values(topperLists).flatMap((list) =>
+          Object.values(list).flatMap((l) => l.map((i) => i.id))
+        ),
+        0
+      ) + 1;
+
+    newItem.id = newId;
+    newItem.index = (topperLists[year]?.[listType]?.length || 0) + 1;
+
+    setTopperLists((prev) => {
+      // Add new year section at the beginning
+      const newTopperLists = {
+        ...prev,
+        [year]: {
+          ...prev[year],
+          [listType]: [...(prev[year]?.[listType] || []), newItem],
+        },
+      };
+
+      // Reorder the years so the new one comes first
+      const orderedTopperLists = {
+        [year]: newTopperLists[year],
+        ...Object.keys(prev)
+          .filter((key) => key !== year)
+          .reduce((acc, key) => {
+            acc[key] = prev[key];
+            return acc;
+          }, {}),
+      };
+
+      return orderedTopperLists;
+    });
+
+    if (listType === "top3") {
+      setNewTop3({ name: "", percentage: "", image: "", year: "" });
+    } else {
+      setNewOtherTopper({ name: "", percentage: "", year: "" });
+    }
   };
 
-  const handleImageChange = (e) => {
-    setNewItemImage(e.target.value);
-  };
+  const sortToppers = (year, listType) => {
+    if (!topperLists[year] || !topperLists[year][listType]) return;
 
-  const addNewItem = () => {
-    const newItemId = Math.max(...items.map((item) => item.id)) + 1;
-    const newItem = {
-      id: newItemId,
-      name: newItemName,
-      image: newItemImage,
-    };
+    const sortedList = [...topperLists[year][listType]].sort(
+      (a, b) => b.percentage - a.percentage
+    );
 
-    setItems([...items, newItem]);
-    setNewItemName("");
-    setNewItemImage("");
+    sortedList.forEach((item, index) => (item.index = index + 1));
+
+    setTopperLists({
+      ...topperLists,
+      [year]: {
+        ...topperLists[year],
+        [listType]: sortedList,
+      },
+    });
   };
 
   return (
-    <div className="sortable-list">
-      <div className="new-item">
-        <input
-          type="text"
-          placeholder="Name"
-          value={newItemName}
-          onChange={handleNameChange}
-          className="input-field"
-        />
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={newItemImage}
-          onChange={handleImageChange}
-          className="input-field"
-        />
-        <button onClick={addNewItem} className="add-button">
-          Add New Item
-        </button>
-      </div>
-      {items.map((item) => (
-        <div
-          key={item.id}
-          className={`item ${item === draggingItem ? "dragging" : ""}`}
-          draggable="true"
-          onDragStart={(e) => handleDragStart(e, item)}
-          onDragEnd={handleDragEnd}
-          onDragOver={handleDragOver}
-          onDrop={(e) => handleDrop(e, item)}
-        >
-          <div className="details">
-            <img src={item.image} alt={item.name} />
-            <span>{item.name}</span>
-          </div>
-
-          {/* Use the React icon component */}
-          <RiDragMove2Line />
+    <div className="h-screen p-10 flex gap-4">
+      <div className="w-1/2">
+        <div className="bg-gray-100 p-4 rounded-md mb-4">
+          <h3 className="text-lg font-bold mb-2">Add Top 3 Toppers</h3>
+          <input
+            type="text"
+            placeholder="Name"
+            name="name"
+            value={newTop3.name}
+            onChange={(e) => handleInputChange(e, "top3")}
+            className="border border-gray-300 p-2 mb-2 w-full"
+          />
+          <input
+            type="text"
+            placeholder="Percentage"
+            name="percentage"
+            value={newTop3.percentage}
+            onChange={(e) => handleInputChange(e, "top3")}
+            className="border border-gray-300 p-2 mb-2 w-full"
+          />
+          <input
+            type="text"
+            placeholder="Year"
+            name="year"
+            value={newTop3.year}
+            onChange={(e) => handleInputChange(e, "top3")}
+            className="border border-gray-300 p-2 mb-2 w-full"
+          />
+          <input
+            type="text"
+            placeholder="Image URL"
+            name="image"
+            value={newTop3.image}
+            onChange={(e) => handleInputChange(e, "top3")}
+            className="border border-gray-300 p-2 mb-2 w-full"
+          />
+          <button
+            onClick={() => addTopper("top3")}
+            className="bg-blue-500 text-white p-2 rounded-md w-full"
+          >
+            Add Topper
+          </button>
         </div>
-      ))}
+        <div className="bg-gray-100 p-4 rounded-md">
+          <h3 className="text-lg font-bold mb-2">Add Other Toppers</h3>
+          <input
+            type="text"
+            placeholder="Name"
+            name="name"
+            value={newOtherTopper.name}
+            onChange={(e) => handleInputChange(e, "others")}
+            className="border border-gray-300 p-2 mb-2 w-full"
+          />
+          <input
+            type="text"
+            placeholder="Percentage"
+            name="percentage"
+            value={newOtherTopper.percentage}
+            onChange={(e) => handleInputChange(e, "others")}
+            className="border border-gray-300 p-2 mb-2 w-full"
+          />
+          <input
+            type="text"
+            placeholder="Year"
+            name="year"
+            value={newOtherTopper.year}
+            onChange={(e) => handleInputChange(e, "others")}
+            className="border border-gray-300 p-2 mb-2 w-full"
+          />
+          <button
+            onClick={() => addTopper("others")}
+            className="bg-blue-500 text-white p-2 rounded-md w-full"
+          >
+            Add Topper
+          </button>
+        </div>
+      </div>
+
+      <div className="w-1/2 overflow-auto">
+        {Object.keys(topperLists).map((year) => (
+          <div key={year} className="mb-6">
+            <h2 className="text-xl font-bold mb-2">{year}</h2>
+            <div className="bg-white p-4 rounded-md shadow-md">
+              {["top3", "others"].map((listType) => (
+                <div key={listType} className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2">
+                    {listType === "top3" ? "Top 3 Toppers" : "Other Toppers"}
+                  </h3>
+                  <button
+                    onClick={() => sortToppers(year, listType)}
+                    className="bg-green-500 text-white p-2 rounded-md mb-4"
+                  >
+                    Sort by Percentage
+                  </button>
+                  <ul>
+                    {topperLists[year][listType]?.map((topper) => (
+                      <li
+                        key={topper.id}
+                        draggable
+                        onDragStart={(e) =>
+                          handleDragStart(e, topper, listType, year)
+                        }
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, topper, listType, year)}
+                        onDragEnd={handleDragEnd}
+                        className="flex items-center p-2 border border-gray-300 mb-2 rounded-md cursor-move"
+                      >
+                        <RiDragMove2Line className="text-gray-500 mr-2" />
+                        <img
+                          src={topper.image}
+                          alt={topper.name}
+                          className="w-10 h-10 rounded-full mr-2"
+                        />
+                        <div>
+                          <div className="font-bold">{topper.name}</div>
+                          <div className="text-sm">{topper.percentage}%</div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

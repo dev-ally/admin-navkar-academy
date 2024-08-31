@@ -10,7 +10,6 @@ const EventsPage = () => {
       <div className="my-10 flex flex-col px-6">
         <div className="flex justify-between items-center">
           <h1 className="font-bold py-2 text-center text-3xl md:text-4xl flex items-center gap-2 mb-6 md:mb-8">
-            {/* <Calendar className="w-8 h-8" /> */}
             Upcoming Events
           </h1>
           <Button asChild>

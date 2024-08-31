@@ -149,6 +149,10 @@ const EventInfoPage = () => {
   const deleteEventHandler = async (e) => {
     e.preventDefault();
 
+    let deleteConfirm = confirm("Are you sure you want to delete this event?");
+
+    if (!deleteConfirm) return;
+
     // Set deletingEvent to true at the beginning of the process
     setDeletingEvent(true);
 

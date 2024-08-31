@@ -1,5 +1,4 @@
 import DisplayEvents from "@/components/private/DisplayEvents";
-import Card from "@/components/shared/Card";
 import Container from "@/components/shared/Container";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";

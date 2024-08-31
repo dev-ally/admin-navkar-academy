@@ -1,12 +1,15 @@
 "use client";
 
+import ToppersList from "@/components/shared/ToppersList";
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { RiDragMove2Line } from "react-icons/ri";
+import { RiArrowRightLine } from "react-icons/ri";
 
 const App = () => {
   const [topperLists, setTopperLists] = useState({});
   const [draggingItem, setDraggingItem] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(null);
   const [newTop3, setNewTop3] = useState({
     name: "",
     percentage: "",
@@ -58,7 +61,6 @@ const App = () => {
 
     const newList = [...topperLists[year][listType]];
 
-    // Swap items
     [newList[currentIndex], newList[targetIndex]] = [
       newList[targetIndex],
       newList[currentIndex],
@@ -105,7 +107,6 @@ const App = () => {
     newItem.index = (topperLists[year]?.[listType]?.length || 0) + 1;
 
     setTopperLists((prev) => {
-      // Add new year section at the beginning
       const newTopperLists = {
         ...prev,
         [year]: {
@@ -114,7 +115,6 @@ const App = () => {
         },
       };
 
-      // Reorder the years so the new one comes first
       const orderedTopperLists = {
         [year]: newTopperLists[year],
         ...Object.keys(prev)
@@ -231,74 +231,60 @@ const App = () => {
           </Button>
         </div>
       </div>
-
-      <div className="w-1/2 overflow-auto">
-        {Object.keys(topperLists).length > 0 ? (
-          Object.keys(topperLists).map((year) => (
-            <div key={year} className="mb-6">
-              <h2 className="text-2xl text-center font-bold mb-2 text-gray-700 ">
-                Year {year}
-              </h2>
-              <div className="bg-white p-4 rounded-md shadow-md">
-                {["top3", "others"].map((listType) => (
-                  <div key={listType} className="mb-4">
-                    <h3 className="text-lg font-semibold mb-2">
-                      {listType === "top3" ? "Top 3 Toppers" : "Other Toppers"}
-                    </h3>
-                    {topperLists[year][listType]?.length > 0 ? (
-                      <>
-                        <Button
-                          onClick={() => sortToppers(year, listType)}
-                          className=" text-white p-2 rounded-md mb-4 "
-                        >
-                          Sort by Percentage
-                        </Button>
-                        <ul>
-                          {topperLists[year][listType].map((topper) => (
-                            <li
-                              key={topper.id}
-                              draggable
-                              onDragStart={(e) =>
-                                handleDragStart(e, topper, listType, year)
-                              }
-                              onDragOver={handleDragOver}
-                              onDrop={(e) =>
-                                handleDrop(e, topper, listType, year)
-                              }
-                              onDragEnd={handleDragEnd}
-                              className="flex items-center p-2 border border-gray-300 mb-2 rounded-md cursor-move"
-                            >
-                              <RiDragMove2Line className="text-gray-500 mr-2" />
-                              <img
-                                src={topper.image}
-                                alt={topper.name}
-                                className="w-10 h-10 rounded-full mr-2"
-                              />
-                              <div className="flex justify-between w-full">
-                                <div className="font-bold">{topper.name}</div>
-                                <div className="font-bold text-lg text-blue-600">
-                                  {topper.percentage}%
-                                </div>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    ) : (
-                      <div className="text-center text-gray-500">
-                        No Toppers Added Yet
-                      </div>
-                    )}
+      <div className="w-1/2 flex flex-col gap-4 overflow-auto">
+        <div className="bg-white p-4 rounded-md shadow-md mb-4">
+          <h2 className="text-2xl font-bold mb-2 text-gray-700">
+            {Object.keys(topperLists).length === 0 ? (
+              <p className="text-gray-500">No Toppers List Available</p>
+            ) : (
+              "Toppers List"
+            )}
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(topperLists).map((year) => (
+              <div>
+                {selectedYear === year ? (
+                  <div
+                    key={year}
+                    onClick={() => setSelectedYear(null)}
+                    className={`p-3 rounded-md cursor-pointer ${
+                      selectedYear === year
+                        ? "bg-[#f27436] text-white"
+                        : "bg-transparent text-gray-700"
+                    } w-full border border-gray-300 text-center hover:bg-[#f27436] hover:text-white flex items-center justify-center`}
+                  >
+                    Close <X className="w-6 h-6 ml-2" />
                   </div>
-                ))}
+                ) : (
+                  <div
+                    key={year}
+                    onClick={() => setSelectedYear(year)}
+                    className={`p-3 rounded-md cursor-pointer ${
+                      selectedYear === year
+                        ? "bg-[#f27436] text-white"
+                        : "bg-transparent text-gray-700"
+                    } w-full border border-gray-300 text-center hover:bg-[#f27436] hover:text-white flex items-center justify-center`}
+                  >
+                    {year}
+                    <RiArrowRightLine className="w-6 h-6 ml-2" />
+                  </div>
+                )}
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="flex justify-center items-center font-bold text-xl ">
-            No Toppers Added Yet
+            ))}
           </div>
-        )}
+
+          {selectedYear && (
+            <ToppersList
+              topperLists={topperLists[selectedYear] || {}}
+              handleDragStart={handleDragStart}
+              handleDragEnd={handleDragEnd}
+              handleDragOver={handleDragOver}
+              handleDrop={handleDrop}
+              sortToppers={sortToppers}
+              year={selectedYear}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

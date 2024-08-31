@@ -17,7 +17,7 @@ const Card = ({
   eventLocation,
 }) => {
   return (
-    <div className="relative flex flex-col text-gray-700 bg-white shadow-md border-2 rounded-md w-full mx-auto hover:scale-100 transition-all duration-300 min-w-[200px] max-w-[400px]">
+    <div className="relative flex flex-col text-gray-700 bg-white shadow-md border-2 rounded-md mx-auto hover:scale-100 transition-all duration-300 w-[326px]">
       <div>
         <Image
           width={1000}

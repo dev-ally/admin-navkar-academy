@@ -51,29 +51,25 @@ const SignIn = () => {
   };
 
   const resetHandler = async () => {
-    // if (email === "") {
-    //   alert("Please enter your email");
-    //   return;
-    // }
     let emailToReset = prompt("Enter your email to reset password");
     console.log("Resetting password");
     let loading = toast.loading("Sending Reset Password Email...");
     await sendPasswordResetEmail(auth, emailToReset)
       .then(() => {
-        // alert("Email sent if you are already registered");
         toast.success("Email sent if you are already registered", {
           id: loading,
         });
       })
       .catch((err) => {
         if (err.code === "auth/user-not-found") {
-          // alert("You don't have an account with this email");
           toast.error("You don't have an account with this email", {
             id: loading,
           });
+        } else if (err.code === "auth/missing-email") {
+          toast.error("Please enter your email", {
+            id: loading,
+          });
         } else {
-          // alert(err.message);
-
           toast.error(err.message, {
             id: loading,
           });
@@ -84,22 +80,22 @@ const SignIn = () => {
   return (
     <div className="flex flex-col justify-center items-center min-h-[100svh] px-4 py-8">
       <div className="flex items-center justify-center w-full">
-        <div className="bg-gray-300 mb-3  w-32 h-32  flex items-center justify-center border rounded-xl">
+        <div className="mb-3  w-32 h-32  flex items-center justify-center">
           <Image
             src="/logo.png"
             alt="logo"
             width={300}
             height={300}
-            className="w-full h-full border border-gray-300 rounded-xl"
+            className="w-full h-full"
           />
         </div>
       </div>
 
       <form
         action="submit"
-        className="p-8 rounded-lg border-2 min-w-[250px] md:min-w-[400px] flex flex-col gap-4"
+        className="p-8 rounded-lg border-2 min-w-[250px] md:min-w-[400px] lg:min-w-[500px] flex flex-col gap-4"
       >
-        <h2 className="text-lg text-gray-700 text-center ">
+        <h2 className="text-2xl font-bold text-gray-700 text-center mb-2">
           Log In to Admin Panel
         </h2>
         <div className="flex flex-col gap-2">
@@ -118,7 +114,6 @@ const SignIn = () => {
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="password" className="text-gray-500 font-bold ">
-            {" "}
             Password
           </label>
           <input
@@ -133,7 +128,7 @@ const SignIn = () => {
         </div>
         <div>
           <p
-            className="text-sm cursor-pointer text-blue-600 underline font-bold"
+            className="text-base cursor-pointer text-black/80 font-medium"
             onClick={resetHandler}
           >
             Forget Password?

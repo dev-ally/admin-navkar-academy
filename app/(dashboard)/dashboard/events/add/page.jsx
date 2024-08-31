@@ -7,6 +7,7 @@ import { storage } from "@/firebase/config";
 import { uploadBytesResumable, ref, getDownloadURL } from "firebase/storage";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
@@ -22,6 +23,8 @@ const AddEvents = () => {
     createdAt: "",
   });
   const [addingEvent, setAddingEvent] = useState(false);
+
+  const router = useRouter();
 
   const addEventHandler = async (e) => {
     e.preventDefault();
@@ -148,6 +151,8 @@ const AddEvents = () => {
               toast.success("Event added successfully!", {
                 id: loading,
               });
+
+              router.push("/dashboard/events"); // Redirect to events page after successful addition
             } else {
               toast.error("Failed to add event. Please try again later.", {
                 id: loading,

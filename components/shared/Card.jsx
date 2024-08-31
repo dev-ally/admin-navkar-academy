@@ -8,6 +8,8 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import Image from "next/image";
+import { Button } from "../ui/button";
+import Link from "next/link";
 
 const Card = ({
   eventTitle,
@@ -15,16 +17,17 @@ const Card = ({
   eventDate,
   eventImg,
   eventLocation,
+  eventSlug,
 }) => {
   return (
-    <div className="relative flex flex-col text-gray-700 bg-white shadow-md border-2 rounded-md mx-auto hover:scale-100 transition-all duration-300 w-[326px]">
+    <div className="relative flex justify-between flex-col text-gray-700 bg-white shadow-md border-2 rounded-md mx-auto hover:scale-100 transition-all duration-300 min-w-[300px] max-w-[340px]">
       <div>
         <Image
           width={1000}
           height={1000}
           src={eventImg}
           alt="Event Image"
-          className="w-full h-56 object-cover rounded-t-md"
+          className="w-full h-full object-cover rounded-t-md"
         />
       </div>
       <div className="px-6 py-4 flex justify-between items-center">
@@ -53,6 +56,9 @@ const Card = ({
               </div>
             </div>
             <AlertDialogCancel>Close</AlertDialogCancel>
+            <Button asChild variant="native">
+              <Link href={`/dashboard/events/${eventSlug}`}>Edit Event</Link>
+            </Button>
           </AlertDialogContent>
         </AlertDialog>
       </div>

@@ -7,6 +7,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "navkar-academy.vercel.app",
       },
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+      },
     ],
   },
 };

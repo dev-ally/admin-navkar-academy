@@ -2,14 +2,29 @@
 
 import ToppersList from "@/components/shared/ToppersList";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, ArrowLeft, Trash, TrashIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { RiArrowRightLine } from "react-icons/ri";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  updateDoc,
+  arrayRemove,
+} from "firebase/firestore";
+import { database, storage } from "@/firebase/config";
+
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import toast from "react-hot-toast";
 
 const App = () => {
   const [topperLists, setTopperLists] = useState({});
   const [draggingItem, setDraggingItem] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
+  const [animation, setAnimation] = useState("");
   const [newTop3, setNewTop3] = useState({
     name: "",
     percentage: "",
@@ -21,10 +36,66 @@ const App = () => {
     percentage: "",
     year: "",
   });
+  const [isSaveEnabled, setIsSaveEnabled] = useState(false);
+
+  const handleDelete = async (item, listType, year) => {
+    try {
+      const docRef = doc(database, "toppers", year);
+      await updateDoc(docRef, {
+        [listType]: arrayRemove(item),
+      }).then(() => {
+        toast.success("Topper deleted successfully!");
+      });
+
+      // Update the state after deletion
+      setTopperLists((prev) => ({
+        ...prev,
+        [year]: {
+          ...prev[year],
+          [listType]: prev[year][listType].filter((i) => i.id !== item.id),
+        },
+      }));
+
+      console.log("Item successfully deleted!");
+    } catch (error) {
+      console.error("Error deleting document:", error);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!selectedYear) return;
+
+    try {
+      const toppersRef = doc(database, "toppers", selectedYear);
+      await setDoc(toppersRef, topperLists[selectedYear], { merge: true }).then(
+        () => {
+          console.log("Document successfully updated!");
+          toast.success("Toppers updated successfully!");
+        }
+      );
+    } catch (error) {
+      console.error("Error saving document:", error);
+    }
+
+    setIsSaveEnabled(false);
+  };
 
   useEffect(() => {
-    console.log("Updated Topper Lists:", topperLists);
-  }, [topperLists]);
+    const fetchToppersData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(database, "toppers"));
+        const yearsData = querySnapshot.docs.reduce((acc, doc) => {
+          acc[doc.id] = doc.data();
+          return acc;
+        }, {});
+        setTopperLists(yearsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchToppersData();
+  }, []);
 
   const handleDragStart = (e, item, listType, year) => {
     setDraggingItem({ item, listType, year });
@@ -61,11 +132,13 @@ const App = () => {
 
     const newList = [...topperLists[year][listType]];
 
+    // Swap the items
     [newList[currentIndex], newList[targetIndex]] = [
       newList[targetIndex],
       newList[currentIndex],
     ];
 
+    // Update the index of all items in the new list
     newList.forEach((item, index) => (item.index = index + 1));
 
     setTopperLists((prev) => ({
@@ -75,8 +148,10 @@ const App = () => {
         [listType]: newList,
       },
     }));
+    console.log(topperLists[year][listType]);
 
     setDraggingItem(null);
+    setIsSaveEnabled(true);
   };
 
   const handleInputChange = (e, listType) => {
@@ -88,7 +163,7 @@ const App = () => {
     }
   };
 
-  const addTopper = (listType) => {
+  const addTopper = async (listType) => {
     const newItem =
       listType === "top3" ? { ...newTop3 } : { ...newOtherTopper };
 
@@ -106,33 +181,88 @@ const App = () => {
     newItem.id = newId;
     newItem.index = (topperLists[year]?.[listType]?.length || 0) + 1;
 
-    setTopperLists((prev) => {
-      const newTopperLists = {
-        ...prev,
-        [year]: {
-          ...prev[year],
-          [listType]: [...(prev[year]?.[listType] || []), newItem],
-        },
-      };
+    // Upload the image to Firebase Storage
+    const storageRef = ref(storage, `toppers/${newItem.name.toLowerCase()}`);
 
-      const orderedTopperLists = {
-        [year]: newTopperLists[year],
-        ...Object.keys(prev)
-          .filter((key) => key !== year)
-          .reduce((acc, key) => {
-            acc[key] = prev[key];
-            return acc;
-          }, {}),
-      };
+    const uploadTask = uploadBytesResumable(storageRef, newItem.image);
 
-      return orderedTopperLists;
-    });
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log("Upload is " + progress + "% done");
+        switch (snapshot.state) {
+          case "paused":
+            console.log("Upload is paused");
+            break;
+          case "running":
+            console.log("Upload is running");
+            break;
+        }
+      },
+      (error) => {
+        console.error(error);
+      },
+      async () => {
+        // Get the download URL after the upload completes
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        console.log("File available at", downloadURL);
 
-    if (listType === "top3") {
-      setNewTop3({ name: "", percentage: "", image: "", year: "" });
-    } else {
-      setNewOtherTopper({ name: "", percentage: "", year: "" });
-    }
+        // Update newItem with the download URL
+        newItem.image = downloadURL;
+
+        // Update the state with the new item
+        setTopperLists((prev) => {
+          const newTopperLists = {
+            ...prev,
+            [year]: {
+              ...prev[year],
+              [listType]: [...(prev[year]?.[listType] || []), newItem],
+            },
+          };
+
+          // Ensure that new years are added at the top
+          const orderedTopperLists = {
+            [year]: newTopperLists[year],
+            ...Object.keys(prev)
+              .filter((key) => key !== year)
+              .reduce((acc, key) => {
+                acc[key] = prev[key];
+                return acc;
+              }, {}),
+          };
+
+          return orderedTopperLists;
+        });
+
+        const toppersRef = doc(database, "toppers", year);
+        await setDoc(toppersRef, {
+          top3: [
+            ...(topperLists[year]?.top3 || []),
+            ...(listType === "top3" ? [newItem] : []),
+          ],
+          others: [
+            ...(topperLists[year]?.others || []),
+            ...(listType === "others" ? [newItem] : []),
+          ],
+        }).then(() => {
+          toast.success("Topper added successfully!");
+        });
+        // Reset the form inputs after adding the topper
+        if (listType === "top3" && selectedYear === year) {
+          setNewTop3({ name: "", percentage: "", image: "", year: year });
+        } else {
+          setNewTop3({ name: "", percentage: "", image: "", year: "" });
+        }
+        if (listType === "others" && selectedYear === year) {
+          setNewOtherTopper({ name: "", percentage: "", year: year });
+        }
+        if (listType === "others") {
+          setNewOtherTopper({ name: "", percentage: "", year: "" });
+        }
+      }
+    );
   };
 
   const sortToppers = (year, listType) => {
@@ -142,6 +272,7 @@ const App = () => {
       (a, b) => b.percentage - a.percentage
     );
 
+    // Update the index of all items in the sorted list
     sortedList.forEach((item, index) => (item.index = index + 1));
 
     setTopperLists({
@@ -151,6 +282,10 @@ const App = () => {
         [listType]: sortedList,
       },
     });
+
+    setIsSaveEnabled(true);
+
+    console.log("Sorted ", topperLists[year][listType]);
   };
 
   return (
@@ -181,14 +316,17 @@ const App = () => {
             value={newTop3.year}
             onChange={(e) => handleInputChange(e, "top3")}
             className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+            disabled={selectedYear !== null}
           />
           <input
-            type="text"
-            placeholder="Image URL"
-            name="image"
-            value={newTop3.image}
-            onChange={(e) => handleInputChange(e, "top3")}
+            type="file"
+            id="eventImage"
+            accept="image/*"
             className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+            onChange={(e) => {
+              console.log(e.target.files[0]);
+              setNewTop3((prev) => ({ ...prev, image: e.target.files[0] }));
+            }}
           />
           <Button
             onClick={() => addTopper("top3")}
@@ -197,7 +335,7 @@ const App = () => {
             Add Topper
           </Button>
         </div>
-        <div className="bg-gray-100 p-4 rounded-md">
+        <div className="bg-gray-100 p-4 rounded-md border-2">
           <h3 className="text-2xl font-bold mb-2">Add Other Toppers</h3>
           <input
             type="text"
@@ -222,6 +360,7 @@ const App = () => {
             value={newOtherTopper.year}
             onChange={(e) => handleInputChange(e, "others")}
             className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+            disabled={selectedYear !== null}
           />
           <Button
             onClick={() => addTopper("others")}
@@ -231,60 +370,69 @@ const App = () => {
           </Button>
         </div>
       </div>
-      <div className="w-1/2 flex flex-col gap-4 overflow-auto">
-        <div className="bg-white p-4 rounded-md shadow-md mb-4">
-          <h2 className="text-2xl font-bold mb-2 text-gray-700">
-            {Object.keys(topperLists).length === 0 ? (
-              <p className="text-gray-500">No Toppers List Available</p>
-            ) : (
-              "Toppers List"
-            )}
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {Object.keys(topperLists).map((year) => (
-              <div>
-                {selectedYear === year ? (
-                  <div
-                    key={year}
-                    onClick={() => setSelectedYear(null)}
-                    className={`p-3 rounded-md cursor-pointer ${
-                      selectedYear === year
-                        ? "bg-[#f27436] text-white"
-                        : "bg-transparent text-gray-700"
-                    } w-full border border-gray-300 text-center hover:bg-[#f27436] hover:text-white flex items-center justify-center`}
-                  >
-                    Close <X className="w-6 h-6 ml-2" />
-                  </div>
-                ) : (
-                  <div
-                    key={year}
-                    onClick={() => setSelectedYear(year)}
-                    className={`p-3 rounded-md cursor-pointer ${
-                      selectedYear === year
-                        ? "bg-[#f27436] text-white"
-                        : "bg-transparent text-gray-700"
-                    } w-full border border-gray-300 text-center hover:bg-[#f27436] hover:text-white flex items-center justify-center`}
-                  >
-                    {year}
-                    <RiArrowRightLine className="w-6 h-6 ml-2" />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
 
-          {selectedYear && (
+      {/* Right Column: Toppers List */}
+      <div className="w-1/2 bg-gray-100 rounded-lg">
+        {selectedYear ? (
+          <div className="flex flex-col gap-4">
+            <Button
+              onClick={() => {
+                setSelectedYear(null);
+                setAnimation("slide-out");
+                setNewTop3((prev) => ({ ...prev, year: "" }));
+                setNewOtherTopper((prev) => ({ ...prev, year: "" }));
+              }}
+              variant="header"
+              className="mb-4 flex items-center gap-2 border-2 border-black p-2 rounded-md text-black hover:bg-[#f27436]"
+            >
+              <ArrowLeft /> Back
+            </Button>
+
             <ToppersList
-              topperLists={topperLists[selectedYear] || {}}
+              year={selectedYear}
+              topperLists={topperLists[selectedYear]}
               handleDragStart={handleDragStart}
               handleDragEnd={handleDragEnd}
               handleDragOver={handleDragOver}
               handleDrop={handleDrop}
               sortToppers={sortToppers}
-              year={selectedYear}
+              animation={animation}
+              handleSave={handleSave}
+              isSaveEnabled={isSaveEnabled}
+              handleDelete={handleDelete}
             />
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <h1 className="text-2xl font-bold mb-4">
+              {Object.keys(topperLists).length > 0
+                ? "Select a Year"
+                : "No Toppers Added Yet"}
+            </h1>
+            <div
+              className={`flex flex-col gap-3 ${
+                selectedYear !== null ? "border" : ""
+              } p-4 rounded-md`}
+            >
+              {Object.keys(topperLists).map((year) => (
+                <Button
+                  key={year}
+                  onClick={() => {
+                    setSelectedYear(year);
+                    setAnimation("slide-in");
+                    setNewTop3((prev) => ({ ...prev, year }));
+                    setNewOtherTopper((prev) => ({ ...prev, year }));
+                  }}
+                  variant="header"
+                  className="p-4 bg-white border-2 border-black rounded-md hover:bg-[#f27436]/[0.9] hover:text-white"
+                >
+                  Year {year}
+                  <RiArrowRightLine className="animate-pulse w-5 h-5" />
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

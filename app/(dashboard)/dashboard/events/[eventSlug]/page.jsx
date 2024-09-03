@@ -15,21 +15,19 @@ const EventInfoPage = () => {
   const [eventData, setEventData] = useState({
     title: "",
     date: "",
+    time: "",
     location: "",
     description: "",
     downloadUrl: "",
     eventSlug: "",
     createdAt: "",
   });
-  // const [updateEvent, setAddingEvent] = useState(false);
   const [updateEvent, setUpdateEvent] = useState(false);
   const [updatingEvent, setUpdatingEvent] = useState(false);
-  const [dataFound, setDataFound] = useState(null);
   const [fetchedData, setFetchedData] = useState(null);
   const [deletingEvent, setDeletingEvent] = useState(false);
 
   const { eventSlug } = useParams();
-
   const router = useRouter();
 
   useEffect(() => {
@@ -42,6 +40,7 @@ const EventInfoPage = () => {
         setEventData({
           title: data.title || "",
           date: data.date || "",
+          time: data.time || "",
           location: data.location || "",
           description: data.description || "",
           downloadUrl: data.downloadUrl || "",
@@ -50,9 +49,7 @@ const EventInfoPage = () => {
         });
         setFetchedData(data);
         console.log("DATA", data);
-        setDataFound(true);
       } else {
-        setDataFound(false);
         router.push("/dashboard/events");
       }
     });
@@ -65,10 +62,11 @@ const EventInfoPage = () => {
   useEffect(() => {
     if (fetchedData) {
       if (
-        eventData.title !== fetchedData.title ||
+        eventData.title.trim() !== fetchedData.title ||
         eventData.date !== fetchedData.date ||
-        eventData.location !== fetchedData.location ||
-        eventData.description !== fetchedData.description
+        eventData.time !== fetchedData.time || // Check for time updates
+        eventData.location.trim() !== fetchedData.location ||
+        eventData.description.trim() !== fetchedData.description
       ) {
         setUpdateEvent(true);
       } else {
@@ -78,6 +76,7 @@ const EventInfoPage = () => {
   }, [
     eventData.title,
     eventData.date,
+    eventData.time,
     eventData.location,
     eventData.description,
     fetchedData,
@@ -91,12 +90,7 @@ const EventInfoPage = () => {
 
     let loading = toast.loading("Updating event...");
 
-    if (
-      eventData.title === "" ||
-      eventData.date === "" ||
-      eventData.location === "" ||
-      eventData.description === ""
-    ) {
+    if (eventData.location === "" || eventData.description === "") {
       toast.error("Please fill all the fields.", {
         id: loading,
       });
@@ -104,30 +98,12 @@ const EventInfoPage = () => {
       return;
     }
 
-    if (eventData.title.split(" ").length > 8) {
-      toast.error("Please enter a title with less than 8 words.", {
-        id: loading,
-      });
-      setUpdatingEvent(false); // Reset updatingEvent if there's an error
-      return;
-    }
-
-    if (eventData.date < new Date().toISOString().split("T")[0]) {
-      toast.error("Please select a valid date.", {
-        id: loading,
-      });
-      setUpdatingEvent(false); // Reset updatingEvent if there's an error
-      return;
-    }
-
     // Define the reference to the event in the database
-    const eventRef = ref(db, `events/${eventData.eventSlug}`);
+    const eventRef = ref(db, `events/${decodeURIComponent(eventSlug)}`);
 
     // Update the event in the database
     try {
       await update(eventRef, {
-        title: eventData.title,
-        date: eventData.date,
         location: eventData.location,
         description: eventData.description,
       });
@@ -158,11 +134,13 @@ const EventInfoPage = () => {
 
     let loading = toast.loading("Deleting event...");
 
-    const deleteFromStorage = await deleteEventFromStorage(eventData.eventSlug);
+    const deleteFromStorage = await deleteEventFromStorage(
+      decodeURIComponent(eventSlug)
+    );
 
     if (!deleteFromStorage) {
       toast.error(
-        "Failed to delete event. from database Please try again later.",
+        "Failed to delete event from database. Please try again later.",
         {
           id: loading,
         }
@@ -198,12 +176,12 @@ const EventInfoPage = () => {
     <Container>
       <div className="flex justify-center items-center w-full py-6">
         <div className="w-full md:w-[80%] lg:w-[60%]">
-          <h2 className="text-3xl font-bold mb-6">Event Information.</h2>
+          <h2 className="text-3xl font-bold mb-6">Event Information</h2>
           <form onSubmit={updateEventHandler}>
             {/* Image Input */}
             <div className="flex justify-center items-center w-full">
               {eventData?.downloadUrl && (
-                <div className="min-h-[200px] rounded-md w-full flex justify-center items-center flex-col cursor-pointer">
+                <div className="min-h-[200px] rounded-md w-full flex justify-center items-center flex-col">
                   <Image
                     src={eventData.downloadUrl}
                     width={1000}
@@ -227,15 +205,16 @@ const EventInfoPage = () => {
                 type="text"
                 id="eventTitle"
                 placeholder="Enter event title"
-                className="w-full border-2 border-gray-300 rounded-md p-2"
+                className="w-full border-2 border-gray-300 rounded-md p-2 disabled:bg-black/10"
                 value={eventData.title}
-                onChange={(e) =>
-                  setEventData({ ...eventData, title: e.target.value })
-                }
+                disabled
+                // onChange={(e) =>
+                //   setEventData({ ...eventData, title: e.target.value })
+                // }
               />
             </div>
 
-            {/* Date and Location Input */}
+            {/* Date and Time Input */}
             <div>
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div>
@@ -249,32 +228,53 @@ const EventInfoPage = () => {
                     type="date"
                     id="eventDate"
                     min={new Date().toISOString().split("T")[0]}
-                    className="w-full border-2 border-gray-300 rounded-md p-2"
+                    className="w-full border-2 border-gray-300 rounded-md p-2 disabled:bg-black/10"
                     value={eventData.date}
-                    onChange={(e) =>
-                      setEventData({ ...eventData, date: e.target.value })
-                    }
+                    disabled
+                    // onChange={(e) =>
+                    //   setEventData({ ...eventData, date: e.target.value })
+                    // }
                   />
                 </div>
                 <div>
                   <label
-                    htmlFor="eventLocation"
+                    htmlFor="eventTime"
                     className="block text-lg font-semibold"
                   >
-                    Location
+                    Time
                   </label>
                   <input
-                    type="text"
-                    id="eventLocation"
-                    placeholder="Enter event location"
-                    className="w-full border-2 border-gray-300 rounded-md p-2"
-                    value={eventData.location}
-                    onChange={(e) =>
-                      setEventData({ ...eventData, location: e.target.value })
-                    }
+                    type="time"
+                    id="eventTime"
+                    className="w-full border-2 border-gray-300 rounded-md p-2 disabled:bg-black/10"
+                    value={eventData.time}
+                    disabled
+                    // onChange={(e) =>
+                    //   setEventData({ ...eventData, time: e.target.value })
+                    // }
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Location Input */}
+            <div>
+              <label
+                htmlFor="eventLocation"
+                className="block text-lg font-semibold mt-6"
+              >
+                Location
+              </label>
+              <input
+                type="text"
+                id="eventLocation"
+                placeholder="Enter event location"
+                className="w-full border-2 border-gray-300 rounded-md p-2"
+                value={eventData.location}
+                onChange={(e) =>
+                  setEventData({ ...eventData, location: e.target.value })
+                }
+              />
             </div>
 
             {/* Description Input */}
@@ -288,13 +288,12 @@ const EventInfoPage = () => {
               <textarea
                 id="eventDescription"
                 placeholder="Enter event description"
-                className="w-full border-2 border-gray-300 rounded-md p-2"
-                rows="4"
+                className="w-full border-2 border-gray-300 rounded-md p-2 h-32 resize-none"
                 value={eventData.description}
                 onChange={(e) =>
                   setEventData({ ...eventData, description: e.target.value })
                 }
-              ></textarea>
+              />
             </div>
 
             {/* Submit Button */}
@@ -304,9 +303,8 @@ const EventInfoPage = () => {
                   type="submit"
                   disabled={updatingEvent} // Disable button while adding event
                   className={`w-full bg-accent text-white font-semibold hover:bg-orange-500/90 duration-300 ease-in-out rounded-md p-2 mt-6 ${
-                    updatingEvent
-                      ? "bg-orange-500/50 text-white cursor-not-allowed"
-                      : ""
+                    updatingEvent &&
+                    "bg-orange-500/50 text-white cursor-not-allowed"
                   }`}
                 >
                   {updatingEvent ? (
@@ -318,7 +316,11 @@ const EventInfoPage = () => {
               </div>
             )}
 
-            <div className="flex justify-center items-center mt-6">
+            <div
+              className={`flex justify-center items-center ${
+                updateEvent ? "mt-1" : "mt-6"
+              }`}
+            >
               <Button
                 onClick={deleteEventHandler}
                 disabled={deletingEvent} // Disable button while adding event

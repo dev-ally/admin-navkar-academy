@@ -2,9 +2,9 @@ import { db } from "@/firebase/config";
 import { ref, set } from "firebase/database";
 
 const addEventToDB = async ({
-  image,
   title,
   date,
+  time,
   location,
   description,
   downloadUrl,
@@ -15,6 +15,7 @@ const addEventToDB = async ({
   await set(ref(db, "events/" + eventSlug), {
     title,
     date,
+    time,
     location,
     description,
     downloadUrl,

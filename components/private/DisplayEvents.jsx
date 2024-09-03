@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Card from "../shared/Card";
-import { onValue, ref } from "firebase/database";
+import { onValue, orderByKey, query, ref } from "firebase/database";
 import { db } from "@/firebase/config";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import Link from "next/link";
@@ -11,16 +11,18 @@ const DisplayEvents = () => {
   const [eventData, setEventData] = useState(null);
 
   useEffect(() => {
-    const eventsRef = ref(db, "events");
+    const eventsRef = query(ref(db, "events"), orderByKey());
 
     const unsubscribe = onValue(eventsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         // Convert the object data to an array for easier mapping
-        const eventsArray = Object.keys(data).map((key) => ({
-          id: key,
-          ...data[key],
-        }));
+        const eventsArray = Object.keys(data)
+          .map((key) => ({
+            id: key,
+            ...data[key],
+          }))
+          .reverse();
         setEventData(eventsArray);
       } else {
         setEventData([]); // Clear the event data if no events found
@@ -42,7 +44,7 @@ const DisplayEvents = () => {
 
   return (
     <div
-      className={`justify-center items-center ${
+      className={`justify-center ${
         eventData.length === 0
           ? "flex"
           : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-8 gap-y-10"
@@ -63,7 +65,7 @@ const DisplayEvents = () => {
           eventTitle={event.title || "No Title"} // Adjust based on actual data fields
           eventDescription={event.description || "No Description"}
           eventDate={event.date || "No Date"}
-          eventImg={event.downloadUrl || "https://via.placeholder.com/150"}
+          eventImg={event.downloadUrl || "https://via.placeholder.com/600"}
           eventLocation={event.location || "No Location"}
           eventSlug={event.eventSlug || ""}
         />

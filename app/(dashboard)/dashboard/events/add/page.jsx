@@ -16,6 +16,7 @@ const AddEvents = () => {
     image: "",
     title: "",
     date: "",
+    time: "",
     location: "",
     description: "",
     downloadUrl: "",
@@ -39,6 +40,7 @@ const AddEvents = () => {
       eventData.image === "" ||
       eventData.title === "" ||
       eventData.date === "" ||
+      eventData.time === "" || // Ensure time is included in the validation
       eventData.location === "" ||
       eventData.description === ""
     ) {
@@ -83,20 +85,25 @@ const AddEvents = () => {
       today.getSeconds()
     ).padStart(2, "0")}`;
 
+    const eventDateAndTime = `${eventData.date.split("-").join(":")}-${
+      eventData.time
+    }`;
+    console.log("EVENT DATE AND TIME", eventDateAndTime);
+
     const storageRef = ref(
       storage,
-      `events/${eventData.title
+      `events/${eventDateAndTime}_${eventData.title
         .toLowerCase()
         .trim()
-        .replace(/\s/g, "-")}_${createdAt}`
+        .replace(/\s/g, "-")}`
     );
 
     setEventData({
       ...eventData,
       eventSlug:
-        eventData.title.toLowerCase().trim().replace(/\s/g, "-") +
+        eventDateAndTime +
         "_" +
-        createdAt,
+        eventData.title.toLowerCase().trim().replace(/\s/g, "-"),
       createdAt,
     });
 
@@ -139,9 +146,9 @@ const AddEvents = () => {
               ...eventData,
               downloadUrl: downloadURL,
               eventSlug:
-                eventData.title.toLowerCase().trim().replace(/\s/g, "-") +
+                eventDateAndTime +
                 "_" +
-                createdAt,
+                eventData.title.toLowerCase().trim().replace(/\s/g, "-"),
               createdAt,
             });
 
@@ -170,6 +177,7 @@ const AddEvents = () => {
       image: "",
       title: "",
       date: "",
+      time: "", // Reset time after submission
       location: "",
       description: "",
       downloadUrl: "",
@@ -256,7 +264,7 @@ const AddEvents = () => {
               />
             </div>
 
-            {/* Date and Location Input */}
+            {/* Date and Time Input */}
             <div>
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div>
@@ -279,23 +287,42 @@ const AddEvents = () => {
                 </div>
                 <div>
                   <label
-                    htmlFor="eventLocation"
+                    htmlFor="eventTime"
                     className="block text-lg font-semibold"
                   >
-                    Location
+                    Time
                   </label>
                   <input
-                    type="text"
-                    id="eventLocation"
-                    placeholder="Enter event location"
+                    type="time"
+                    id="eventTime"
                     className="w-full border-2 border-gray-300 rounded-md p-2"
-                    value={eventData.location}
+                    value={eventData.time}
                     onChange={(e) =>
-                      setEventData({ ...eventData, location: e.target.value })
+                      setEventData({ ...eventData, time: e.target.value })
                     }
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Location Input */}
+            <div>
+              <label
+                htmlFor="eventLocation"
+                className="block text-lg font-semibold mt-6"
+              >
+                Location
+              </label>
+              <input
+                type="text"
+                id="eventLocation"
+                placeholder="Enter event location"
+                className="w-full border-2 border-gray-300 rounded-md p-2"
+                value={eventData.location}
+                onChange={(e) =>
+                  setEventData({ ...eventData, location: e.target.value })
+                }
+              />
             </div>
 
             {/* Description Input */}
@@ -309,33 +336,29 @@ const AddEvents = () => {
               <textarea
                 id="eventDescription"
                 placeholder="Enter event description"
-                className="w-full border-2 border-gray-300 rounded-md p-2"
-                rows="4"
+                className="w-full border-2 border-gray-300 rounded-md p-2 h-[150px]"
                 value={eventData.description}
                 onChange={(e) =>
                   setEventData({ ...eventData, description: e.target.value })
                 }
-              ></textarea>
+              />
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-center items-center mt-6">
-              <Button
-                type="submit"
-                disabled={addingEvent} // Disable button while adding event
-                className={`w-full bg-accent text-white font-semibold hover:bg-orange-500/90 duration-300 ease-in-out rounded-md p-2 mt-6 ${
-                  addingEvent
-                    ? "bg-orange-500/50 text-white cursor-not-allowed"
-                    : ""
-                }`}
-              >
-                {addingEvent ? (
-                  <LoaderCircle className="animate-spin" />
-                ) : (
-                  "Add Event"
-                )}
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              className="w-full mt-8 p-3 bg-black text-white hover:bg-gray-800 transition-all duration-300 ease-in-out rounded-md"
+              disabled={addingEvent}
+            >
+              {addingEvent ? (
+                <div className="flex justify-center items-center gap-2">
+                  <LoaderCircle className="h-5 w-5 animate-spin" />
+                  Adding Event...
+                </div>
+              ) : (
+                "Add Event"
+              )}
+            </Button>
           </form>
         </div>
       </div>

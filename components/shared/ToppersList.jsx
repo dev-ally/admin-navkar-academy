@@ -12,8 +12,10 @@ const ToppersList = ({
   sortToppers,
   year,
   animation,
-  isSaveEnabled,
-  handleSave,
+  isTop3Changed,
+  isOthersChanged,
+  saveTop3,
+  saveOthers,
   handleDelete,
 }) => {
   if (!topperLists) return null;
@@ -28,9 +30,9 @@ const ToppersList = ({
         {year} Toppers List
       </h2>
 
-      <div className="flex justify-between items-center ">
+      <div className="md:flex justify-between items-center ">
         <h3 className="text-xl font-semibold mt-4">Top 3 Toppers</h3>
-        <div className="flex gap-x-4 items-center">
+        <div className="flex gap-x-4 justify-center items-center">
           {topperLists.top3 && topperLists.top3.length > 1 && (
             <>
               <Button
@@ -39,7 +41,7 @@ const ToppersList = ({
               >
                 Sort Top 3 by Percentage
               </Button>
-              <Button onClick={handleSave} disabled={!isSaveEnabled}>
+              <Button onClick={saveTop3} disabled={!isTop3Changed}>
                 Save
               </Button>
             </>
@@ -84,9 +86,9 @@ const ToppersList = ({
           <p>No top 3 toppers for this year.</p>
         )}
       </div>
-      <div className="flex justify-between items-center my-4">
+      <div className="md:flex justify-between items-center my-4">
         <h3 className="text-xl font-semibold mt-4">Other Toppers</h3>
-        <div className="flex gap-x-4 items-center">
+        <div className="flex gap-x-4 justify-center items-center">
           {topperLists.others && topperLists.others.length > 1 ? (
             <>
               <Button
@@ -95,7 +97,7 @@ const ToppersList = ({
               >
                 Sort Others by Percentage
               </Button>
-              <Button onClick={handleSave} disabled={!isSaveEnabled}>
+              <Button onClick={saveOthers} disabled={!isOthersChanged}>
                 Save
               </Button>
             </>

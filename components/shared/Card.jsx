@@ -24,7 +24,7 @@ const Card = ({
       <div>
         <Image
           width={1000}
-          height={1000}
+          height={700}
           src={eventImg}
           alt="Event Image"
           className="w-full h-full object-cover rounded-t-md"

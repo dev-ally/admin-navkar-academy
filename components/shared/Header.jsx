@@ -81,6 +81,15 @@ const Header = () => {
             >
               <Link href="/dashboard/events">Events</Link>
             </div>
+            <div
+              className={
+                pathname === "/dashboard/products"
+                  ? "custom-header-underline"
+                  : "custom-header-hover-underline"
+              }
+            >
+              <Link href="/dashboard/products">Products</Link>
+            </div>
             <div>
               <Button variant="header" onClick={signOutHandler}>
                 LogOut
@@ -132,6 +141,13 @@ const Header = () => {
                     </div>
                     <div
                       className={`text-black text-lg tracking-wide ${
+                        pathname === "/dashboard/products" && "font-semibold"
+                      }`}
+                    >
+                      <Link href="/dashboard/events">Products</Link>
+                    </div>
+                    <div
+                      className={`text-black text-lg tracking-wide ${
                         pathname === "/dashboard/events" && "font-semibold"
                       }`}
                     >
@@ -145,7 +161,10 @@ const Header = () => {
                 <div className="w-full">
                   <div className="flex justify-center items-center mb-4">
                     <Button asChild className="w-full">
-                      <a href="" className="flex gap-2">
+                      <a
+                        href="https://store.navkaracademy.in"
+                        className="flex gap-2"
+                      >
                         <Store /> Store
                       </a>
                     </Button>

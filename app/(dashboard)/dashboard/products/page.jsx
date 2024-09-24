@@ -8,7 +8,7 @@ const page = () => {
   return (
     <Container>
       <div className="my-10 flex flex-col px-6">
-        <div className=" flex-col md:flex-row justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
           <h1 className="font-bold text-center text-3xl md:text-4xl flex items-center gap-2 mb-6 md:mb-8">
             Your Products.
           </h1>

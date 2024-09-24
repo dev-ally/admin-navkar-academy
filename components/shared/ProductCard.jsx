@@ -47,17 +47,17 @@ const ProductCard = ({
 
   return (
     <div className="border-2 border-black/80 rounded-lg">
-      <div className="flex w-full">
-        <div className="w-[40%]">
+      <div className="flex w-full flex-col md:flex-row">
+        <div className="w-full md:w-[40%] flex justify-center items-center">
           <Image
             src={pcoverImg}
             alt="Product Cover Image"
             width={1000}
             height={1000}
-            className="w-full h-full object-cover rounded-l-lg"
+            className="w-[90%] md:w-full h-full object-cover rounded-lg md:rounded-l-lg"
           />
         </div>
-        <div className="w-[60%] px-4 py-6 flex flex-col justify-between">
+        <div className="w-full md:w-[60%] px-4 py-6 flex flex-col justify-between">
           <div className="flex flex-col flex-grow">
             <span className="text-sm font-medium">
               {pcreatedAt.split("-").reverse().join("-")}

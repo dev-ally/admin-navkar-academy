@@ -2,25 +2,21 @@ import { db } from "@/firebase/config";
 import { ref, set } from "firebase/database";
 
 const addProductToDB = async ({
-  pid,
-  ptitle,
-  pdescription,
-  pcoverImg,
-  pclass,
-  psubject,
-  pprice,
-  pcreatedAt,
+  // pid,
+  // ptitle,
+  // pdescription,
+  // ppdf,
+  // pcoverImg,
+  // pclass,
+  // psubject,
+  // pprice,
+  // pcreatedAt,
+  data,
+  reference,
 }) => {
   let added = false;
-  await set(ref(db, "products/" + pid), {
-    pid,
-    ptitle,
-    pdescription,
-    pcoverImg,
-    pclass,
-    psubject,
-    pprice,
-    pcreatedAt,
+  await set(ref(db, reference), {
+    ...data,
   })
     .then(() => {
       console.log("Product added to DB");

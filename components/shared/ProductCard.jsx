@@ -33,7 +33,8 @@ const ProductCard = ({
     const loading = toast.loading("Deleting product...");
     try {
       await remove(ref(db, `products/${pid}`));
-      await deleteProductFromStorage(pid);
+      await deleteProductFromStorage(`${pid}_coverImage`);
+      await deleteProductFromStorage(`${pid}_pdfFile`);
       toast.success("Product deleted successfully!", { id: loading });
     } catch (error) {
       console.error("Error deleting product: ", error);
@@ -46,8 +47,8 @@ const ProductCard = ({
   };
 
   return (
-    <div className="border-2 border-black/80 rounded-lg">
-      <div className="flex w-full flex-col md:flex-row">
+    <div className="border-2 border-black/80 rounded-lg h-full">
+      <div className="flex w-full flex-col md:flex-row h-full">
         <div className="w-full md:w-[40%] flex justify-center items-center">
           <Image
             src={pcoverImg}

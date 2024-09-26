@@ -30,7 +30,6 @@ export default function Home() {
         <h1>Go to the Admin Panel.</h1>
         <Link href="/dashboard">Dashboard</Link>
         {/* <Loading /> */}
-        <button onClick={() => signOut(auth)}>Sign Out</button>
       </div>
     );
   }

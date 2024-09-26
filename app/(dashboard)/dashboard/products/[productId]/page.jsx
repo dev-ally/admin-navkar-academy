@@ -318,21 +318,6 @@ const ProductPage = () => {
         pdownloadPdfUrl: pdfUrl,
       }));
 
-      const dataCopy = {
-        datacpy: {
-          pid: newProductId,
-          ptitle: productData.ptitle,
-          pdescription: productData.pdescription,
-          pcoverImg: coverImgUrl,
-          pclass: productData.pclass,
-          psubject: productData.psubject,
-          pprice: productData.pprice,
-          pcreatedAt: productData.pcreatedAt,
-        },
-        reference: `products/${newProductId}`,
-      };
-      console.log("DATA COPY", dataCopy);
-
       // Once both URLs are available, add the product to the database
       const addDataToDb = await addProductToDB({
         data: {
@@ -345,7 +330,7 @@ const ProductPage = () => {
           pprice: productData.pprice,
           pcreatedAt: productData.pcreatedAt,
         },
-        reference: `products/${newProductId}`,
+        reference: `products/${productData.pclass.toString()}/${psubject.toString()}/${newProductId}`,
       });
       const addPdfUrlToDb = await addProductToDB({
         data: {

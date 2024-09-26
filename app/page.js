@@ -1,7 +1,7 @@
 "use client";
 import Loading from "@/components/shared/Loading";
 import { auth } from "@/firebase/config";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -30,6 +30,7 @@ export default function Home() {
         <h1>Go to the Admin Panel.</h1>
         <Link href="/dashboard">Dashboard</Link>
         {/* <Loading /> */}
+        <button onClick={() => signOut(auth)}>Sign Out</button>
       </div>
     );
   }

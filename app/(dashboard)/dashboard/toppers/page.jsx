@@ -19,6 +19,7 @@ import { database, storage } from "@/firebase/config";
 
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import toast from "react-hot-toast";
+import Dialog from "@/components/shared/Dialog";
 
 const App = () => {
   const [topperLists, setTopperLists] = useState({});
@@ -80,6 +81,19 @@ const App = () => {
     }
   };
 
+  const deleteYear = async (year) => {
+    try {
+      const docRef = doc(database, "toppers", year);
+      await deleteDoc(docRef);
+
+      const updatedList = { ...topperLists };
+      delete updatedList[year];
+      setTopperLists(updatedList);
+      toast.success("Year deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting year:", error);
+    }
+  };
   // Function to save the updated top3 list to Firestore
   const saveTop3 = async () => {
     if (!selectedYear || !topperLists[selectedYear]?.top3) return;
@@ -502,8 +516,8 @@ const App = () => {
             />
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-bold mb-4">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl font-bold p-4">
               {Object.keys(topperLists).length > 0
                 ? "Select a Year"
                 : "No Toppers Added Yet"}
@@ -514,20 +528,23 @@ const App = () => {
               } p-4 rounded-md`}
             >
               {Object.keys(topperLists).map((year) => (
-                <Button
-                  key={year}
-                  onClick={() => {
-                    setSelectedYear(year);
-                    setAnimation("slide-in");
-                    setNewTop3((prev) => ({ ...prev, year }));
-                    setNewOtherTopper((prev) => ({ ...prev, year }));
-                  }}
-                  variant="header"
-                  className="p-4 bg-white border-2 border-black rounded-md hover:bg-[#f27436]/[0.9] hover:text-white"
-                >
-                  Year {year}
-                  <RiArrowRightLine className="animate-pulse w-5 h-5" />
-                </Button>
+                <div className="   rounded-md  hover:text-white flex items-center gap-2  ">
+                  <Button
+                    key={year}
+                    onClick={() => {
+                      setSelectedYear(year);
+                      setAnimation("slide-in");
+                      setNewTop3((prev) => ({ ...prev, year }));
+                      setNewOtherTopper((prev) => ({ ...prev, year }));
+                    }}
+                    variant="header"
+                    className="w-11/12 hover:bg-[#f27436]/[0.9]"
+                  >
+                    Year {year}
+                    <RiArrowRightLine className="animate-pulse w-5 h-5" />
+                  </Button>
+                  <Dialog handleDelete={deleteYear} year={year} />
+                </div>
               ))}
             </div>
           </div>

@@ -24,6 +24,11 @@ const SignIn = () => {
         id: message,
       });
       return;
+    } else if (email !== "admin@navkaracademy.in") {
+      toast.error("Invalid credentials", {
+        id: message,
+      });
+      return;
     } else {
       console.log(email, password);
       await signInWithEmailAndPassword(auth, email, password)

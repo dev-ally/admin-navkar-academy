@@ -80,7 +80,7 @@ const ProductPage = () => {
       return;
     }
 
-    const loading = toast.loading("Adding Product: 00.00");
+    const loading = toast.loading("Adding Product: 00.00%");
     setAddingProduct(true);
 
     if (
@@ -123,7 +123,7 @@ const ProductPage = () => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log("Upload is " + progress + "% done");
-        toast.loading(`Adding Product: ${progress.toFixed(2)}`, {
+        toast.loading(`Adding Product: ${progress.toFixed(2)}%`, {
           id: loading,
         });
         switch (snapshot.state) {

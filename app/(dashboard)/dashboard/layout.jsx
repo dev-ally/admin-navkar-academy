@@ -17,7 +17,12 @@ const DashboardLayout = ({ children }) => {
         router.push("/sign-in");
         setAuthUser(false); // Set loading to false after the user state is checked
       } else {
-        setAuthUser(true);
+        if (user.email === "admin@navkaracademy.in") {
+          setAuthUser(true);
+        } else {
+          router.push("/");
+          setAuthUser(false);
+        }
       }
     });
 

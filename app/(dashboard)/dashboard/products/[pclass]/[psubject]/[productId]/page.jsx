@@ -29,28 +29,36 @@ const ProductPage = () => {
   });
   const [addingProduct, setAddingProduct] = useState(false);
 
-  const { productId } = useParams();
+  const { pclass, psubject, productId } = useParams();
   const router = useRouter();
 
   useEffect(() => {
     if (productId !== "add") {
       const fetchProductData = async () => {
-        const productRef = refDB(db, "products/" + productId);
+        const productRef = refDB(db, "products/" + pclass + "/" + decodeURIComponent(psubject) + "/" + productId);
         onValue(productRef, (snapshot) => {
           const data = snapshot.val();
           console.log("DATA", data);
 
-          if (!data) {
-            toast.error("Product not found");
-            router.push("/dashboard/products");
-            return;
-          }
+          // if (!data) {
+          //   toast.error("Product not found");
+          //   router.push("/dashboard/products");
+          //   return;
+          // }
           setProductData(data);
         });
+
+        const noteRef = refDB(db, "notes/" + productId);
+
+        onValue(noteRef, (snapshot) => {
+          const data = snapshot.val();
+          console.log("NOTE DATA", data);
+          setProductData({ ...productData, ppdf: data?.ppdf });
+        })
       };
       fetchProductData();
     }
-  }, [productId, router]);
+  }, [productId, router, pclass, psubject, productData]);
 
   // const productActionHandler = async (e) => {
   //   e.preventDefault();
@@ -234,7 +242,7 @@ const ProductPage = () => {
       return;
     }
 
-    const loading = toast.loading("Adding Product: 00.00%");
+    const loading = toast.loading("Uploading Assets: 00.00%");
     setAddingProduct(true);
 
     if (
@@ -282,7 +290,7 @@ const ProductPage = () => {
             const progress =
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             console.log("Upload is " + progress + "% done");
-            toast.loading(`Adding Product: ${progress.toFixed(2)}%`, {
+            toast.loading(`Uploading Assets: ${progress.toFixed(2)}%`, {
               id: loading,
             });
           },
@@ -317,6 +325,19 @@ const ProductPage = () => {
         pdownloadCoverUrl: coverImgUrl,
         pdownloadPdfUrl: pdfUrl,
       }));
+      const localData = {
+        data: {
+          pid: newProductId,
+          ptitle: productData.ptitle,
+          pdescription: productData.pdescription,
+          pcoverImg: coverImgUrl,
+          pclass: productData.pclass,
+          psubject: productData.psubject,
+          pprice: productData.pprice,
+          pcreatedAt: new Date().toISOString().split("T")[0],
+        }
+      }
+      console.log("LOCALDATA", localData)
 
       // Once both URLs are available, add the product to the database
       const addDataToDb = await addProductToDB({
@@ -328,9 +349,9 @@ const ProductPage = () => {
           pclass: productData.pclass,
           psubject: productData.psubject,
           pprice: productData.pprice,
-          pcreatedAt: productData.pcreatedAt,
+          pcreatedAt: new Date().toISOString().split("T")[0],
         },
-        reference: `products/${productData.pclass.toString()}/${psubject.toString()}/${newProductId}`,
+        reference: `products/${productData.pclass.toString()}/${productData?.psubject.toString()}/${newProductId}`,
       });
       const addPdfUrlToDb = await addProductToDB({
         data: {
@@ -605,10 +626,10 @@ const ProductPage = () => {
                     value={productData.pcreatedAt}
                     className="w-full border-2 border-gray-300 rounded-md p-2"
                     disabled
-                    // value={eventData.date}
-                    // onChange={(e) =>
-                    //   setEventData({ ...eventData, date: e.target.value })
-                    // }
+                  // value={eventData.date}
+                  // onChange={(e) =>
+                  //   setEventData({ ...eventData, date: e.target.value })
+                  // }
                   />
                 </div>
                 <div>
@@ -660,7 +681,7 @@ const ProductPage = () => {
             <Button
               type="submit"
               className="w-full mt-8 p-3 bg-black text-white hover:bg-gray-800 transition-all duration-300 ease-in-out rounded-md"
-              // disabled={addingEvent}
+            // disabled={addingEvent}
             >
               {addingProduct ? (
                 <div className="flex justify-center items-center gap-2">

@@ -27,7 +27,7 @@ const DashboardPage = () => {
   return (
     <Container>
       {/* Set min-h based on available space after the header */}
-      <div className="flex justify-center items-center w-full px-6 min-h-[calc(100vh-230px)]">
+      <div className="flex justify-center items-center w-full px-6 py-8 min-h-[calc(100vh-230px)]">
         <div className="grid md:grid-cols-3 gap-x-14 gap-y-10">
           {data.map((item) => (
             <DCard

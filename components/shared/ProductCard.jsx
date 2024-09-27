@@ -86,7 +86,7 @@ const ProductCard = ({
                 variant="outline"
                 className="text-black w-full border-2 border-accent"
               >
-                <Link href={`products/${pid}`}>
+                <Link href={`products/${pclass}/${psubject}/${pid}`}>
                   <Pencil />
                 </Link>
               </Button>

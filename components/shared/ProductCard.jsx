@@ -32,7 +32,7 @@ const ProductCard = ({
 
     const loading = toast.loading("Deleting product...");
     try {
-      await remove(ref(db, `products/${pid}`));
+      await remove(ref(db, `products/${pclass}/${psubject}/${pid}`));
       await deleteProductFromStorage(`${pid}_coverImage`);
       await deleteProductFromStorage(`${pid}_pdfFile`);
       toast.success("Product deleted successfully!", { id: loading });

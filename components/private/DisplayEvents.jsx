@@ -44,11 +44,10 @@ const DisplayEvents = () => {
 
   return (
     <div
-      className={`justify-center ${
-        eventData.length === 0
-          ? "flex"
-          : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-8 gap-y-10"
-      }`}
+      className={`justify-center ${eventData.length === 0
+        ? "flex"
+        : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-8 gap-y-10"
+        }`}
     >
       {eventData.length === 0 && (
         <Link
@@ -62,10 +61,9 @@ const DisplayEvents = () => {
       {eventData.map((event) => (
         <Card
           key={event.id}
-          eventTitle={event.title || "No Title"} // Adjust based on actual data fields
-          eventDescription={event.description || "No Description"}
+          eventTitle={event.title || "No Title"}
           eventDate={event.date || "No Date"}
-          eventImg={event.downloadUrl || "https://via.placeholder.com/600"}
+          eventImg={event.downloadUrl || []}
           eventLocation={event.location || "No Location"}
           eventSlug={event.eventSlug || ""}
         />

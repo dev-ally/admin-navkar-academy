@@ -19,7 +19,7 @@ import { database, storage } from "@/firebase/config";
 
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import toast from "react-hot-toast";
-import Dialog from "@/components/shared/Dialog";
+import Dialog from "@/components/private/Dialog";
 
 const App = () => {
   const [topperLists, setTopperLists] = useState({});

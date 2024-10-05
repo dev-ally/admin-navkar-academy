@@ -9,7 +9,13 @@ import Dropdown from "@/components/shared/Dropdown"; // Ensure the Dropdown impo
 import Container from "@/components/shared/Container";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const DisplayProducts = ({ selectedClass, selectedSubject }) => {
   const [productsData, setProductsData] = useState(null);
@@ -67,9 +73,13 @@ const DisplayProducts = ({ selectedClass, selectedSubject }) => {
         Object.entries(productList)
           .filter(([productId, product]) => {
             const matchesClass =
-              !selectedClass || selectedClass === "All Classes" || product.pclass === selectedClass; // Adjust for "All Classes"
+              !selectedClass ||
+              selectedClass === "All Classes" ||
+              product.pclass === selectedClass; // Adjust for "All Classes"
             const matchesSubject =
-              !selectedSubject || selectedSubject === "All Subjects" || product.psubject === selectedSubject; // Adjust for "All Subjects"
+              !selectedSubject ||
+              selectedSubject === "All Subjects" ||
+              product.psubject === selectedSubject; // Adjust for "All Subjects"
             return matchesClass && matchesSubject;
           })
           .map(([productId, product]) => ({
@@ -127,18 +137,19 @@ const Page = () => {
   // Prepare classes and subjects
   const classesWithSubjects = productsData
     ? Object.entries(productsData).map(([classKey, subjects]) => ({
-      class: classKey,
-      subjects: Object.keys(subjects).map((subjectKey) => ({
-        subject: subjectKey,
-      })),
-    }))
+        class: classKey,
+        subjects: Object.keys(subjects).map((subjectKey) => ({
+          subject: subjectKey,
+        })),
+      }))
     : [];
 
   const handleClassChange = (className) => {
     setSelectedClass(className === "All Classes" ? null : className); // Adjust for "All Classes"
-    const selectedClassObj = className !== "All Classes" ? classesWithSubjects.find(
-      (c) => c.class === className
-    ) : null;
+    const selectedClassObj =
+      className !== "All Classes"
+        ? classesWithSubjects.find((c) => c.class === className)
+        : null;
     setFilteredSubjects(
       selectedClassObj ? selectedClassObj.subjects.map((s) => s.subject) : []
     );
@@ -167,11 +178,13 @@ const Page = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All Classes">All Classes</SelectItem>
-              {classesWithSubjects.map((c) => c.class).map((option, index) => (
-                <SelectItem key={index} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
+              {classesWithSubjects
+                .map((c) => c.class)
+                .map((option, index) => (
+                  <SelectItem key={index} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
           <Select onValueChange={handleSubjectChange}>
@@ -192,6 +205,20 @@ const Page = () => {
           <DisplayProducts
             selectedClass={selectedClass}
             selectedSubject={selectedSubject}
+          />
+        </div>
+        <div className="flex gap-4">
+          <Dropdown
+            trigger="Class"
+            options={classesWithSubjects.map((c) => c.class)}
+            onChange={handleClassChange}
+            className="w-[180px]"
+          />
+          <Dropdown
+            trigger="Subject"
+            options={filteredSubjects}
+            onChange={handleSubjectChange}
+            className="w-[180px]"
           />
         </div>
       </div>

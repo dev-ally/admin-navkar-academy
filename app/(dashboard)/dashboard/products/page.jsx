@@ -170,11 +170,13 @@ const Page = () => {
             trigger="Class"
             options={classesWithSubjects.map((c) => c.class)}
             onChange={handleClassChange}
+            className="w-[180px]"
           />
           <Dropdown
             trigger="Subject"
             options={filteredSubjects}
             onChange={handleSubjectChange}
+            className="w-[180px]"
           />
         </div>
       </div>

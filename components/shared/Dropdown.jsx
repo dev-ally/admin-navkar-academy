@@ -7,13 +7,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const Dropdown = ({ trigger, options, onChange }) => {
+const Dropdown = ({ trigger, options, onChange, className, value }) => {
   return (
     <div>
-      <Select onValueChange={onChange}>
+      <Select onValueChange={onChange} value={value}>
         {" "}
         {/* Add onValueChange prop here */}
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className={`${className} `}>
           <SelectValue placeholder={trigger} />
         </SelectTrigger>
         <SelectContent>

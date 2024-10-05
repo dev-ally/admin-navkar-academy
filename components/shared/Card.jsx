@@ -10,10 +10,11 @@ import {
 import Image from "next/image";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const Card = ({
   eventTitle,
-  eventDescription,
   eventDate,
   eventImg,
   eventLocation,
@@ -21,15 +22,40 @@ const Card = ({
 }) => {
   return (
     <div className="relative flex justify-between flex-col text-gray-700 bg-white shadow-md border-2 rounded-md mx-auto hover:scale-100 transition-all duration-300 min-w-[300px] max-w-[340px]">
-      <div>
-        <Image
-          width={1000}
-          height={700}
-          src={eventImg}
-          alt="Event Image"
-          className="w-full h-full object-cover rounded-t-md"
-        />
+      {/* <div> */}
+      {/* <Image
+        width={1000}
+        height={700}
+        src={eventImg}
+        alt="Event Image"
+        className="w-full h-full object-cover rounded-t-md"
+      /> */}
+      <div className="max-h-[300px] flex justify-center items-center">
+        <Carousel className="w-full max-w-[200px] max-h-[300px]" plugins={[
+          Autoplay({
+            delay: 4000,
+          }),
+        ]}>
+          <CarouselContent>
+            {eventImg?.length > 0 && eventImg?.map((image, index) => (
+              <CarouselItem key={index}>
+                <div className="p-1 h-fit">
+                  <Image
+                    width={1000}
+                    height={300}
+                    src={image}
+                    alt="Event Image"
+                    className="h-[300px] object-contain rounded-t-md"
+                  />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious />
+          <CarouselNext />
+        </Carousel>
       </div>
+      {/* </div> */}
       <div className="px-6 py-4 flex justify-between items-center">
         <p className="text-primary font-semibold">{eventTitle}</p>
         <AlertDialog>
@@ -46,13 +72,34 @@ const Card = ({
               </AlertDialogTitle>
             </AlertDialogHeader>
             <div className="w-[100%] h-[3px] rounded-full my-2 bg-accent mx-auto md:mx-0" />
-            <div className="text-base text-primary">
-              <div className="mb-3">
-                <span className="font-bold">About this event: </span>
-                {eventDescription}
-              </div>
-              <div className="mb-3">
-                <span className="font-bold">Location</span> - {eventLocation}
+            <div className="w-full flex justify-center items-center flex-col gap-3">
+              <Carousel className="w-[80%] max-h-[300px]" plugins={[
+                Autoplay({
+                  delay: 4000,
+                }),
+              ]}>
+                <CarouselContent>
+                  {eventImg?.length > 0 && eventImg?.map((image, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1 h-fit">
+                        <Image
+                          width={1000}
+                          height={300} // Set height to 300
+                          src={image}
+                          alt="Event Image"
+                          className="h-[300px] object-contain rounded-t-md" // Set height to 300px and use object-cover
+                        />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
+              <div className="text-base text-primary">
+                <div className="mb-3">
+                  <span className="font-bold">Location</span> - {eventLocation}
+                </div>
               </div>
             </div>
             <AlertDialogCancel>Close</AlertDialogCancel>

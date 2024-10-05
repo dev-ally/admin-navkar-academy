@@ -9,6 +9,13 @@ import Dropdown from "@/components/shared/Dropdown"; // Ensure the Dropdown impo
 import Container from "@/components/shared/Container";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const DisplayProducts = ({ selectedClass, selectedSubject }) => {
   const [productsData, setProductsData] = useState(null);
@@ -66,9 +73,13 @@ const DisplayProducts = ({ selectedClass, selectedSubject }) => {
         Object.entries(productList)
           .filter(([productId, product]) => {
             const matchesClass =
-              !selectedClass || product.pclass === selectedClass;
+              !selectedClass ||
+              selectedClass === "All Classes" ||
+              product.pclass === selectedClass; // Adjust for "All Classes"
             const matchesSubject =
-              !selectedSubject || product.psubject === selectedSubject;
+              !selectedSubject ||
+              selectedSubject === "All Subjects" ||
+              product.psubject === selectedSubject; // Adjust for "All Subjects"
             return matchesClass && matchesSubject;
           })
           .map(([productId, product]) => ({
@@ -106,8 +117,8 @@ const DisplayProducts = ({ selectedClass, selectedSubject }) => {
 
 const Page = () => {
   const [productsData, setProductsData] = useState(null);
-  const [selectedClass, setSelectedClass] = useState(null);
-  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedClass, setSelectedClass] = useState("All Classes"); // Set default to "All Classes"
+  const [selectedSubject, setSelectedSubject] = useState("All Subjects"); // Set default to "All Subjects"
   const [filteredSubjects, setFilteredSubjects] = useState([]);
 
   useEffect(() => {
@@ -134,10 +145,11 @@ const Page = () => {
     : [];
 
   const handleClassChange = (className) => {
-    setSelectedClass(className);
-    const selectedClassObj = classesWithSubjects.find(
-      (c) => c.class === className
-    );
+    setSelectedClass(className === "All Classes" ? null : className); // Adjust for "All Classes"
+    const selectedClassObj =
+      className !== "All Classes"
+        ? classesWithSubjects.find((c) => c.class === className)
+        : null;
     setFilteredSubjects(
       selectedClassObj ? selectedClassObj.subjects.map((s) => s.subject) : []
     );
@@ -145,19 +157,49 @@ const Page = () => {
   };
 
   const handleSubjectChange = (subject) => {
-    setSelectedSubject(subject);
+    setSelectedSubject(subject === "All Subjects" ? null : subject); // Adjust for "All Subjects"
   };
 
   return (
     <Container>
       <div className="my-10 flex flex-col px-6">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <h1 className="font-bold text-center text-3xl md:text-4xl flex items-center gap-2 mb-6 md:mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+          <h1 className="font-bold text-center text-3xl md:text-4xl flex items-center gap-2 mb-6 md:mb-0">
             Your Products.
           </h1>
           <Button asChild>
-            <Link href="/dashboard/products/add">Add Product</Link>
+            <Link href="/dashboard/products/0/0/add">Add Product</Link>
           </Button>
+        </div>
+        <div className="flex gap-4 mb-6">
+          <Select onValueChange={handleClassChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Class" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All Classes">All Classes</SelectItem>
+              {classesWithSubjects
+                .map((c) => c.class)
+                .map((option, index) => (
+                  <SelectItem key={index} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          <Select onValueChange={handleSubjectChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Subject" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All Subjects">All Subjects</SelectItem>
+              {filteredSubjects.map((option, index) => (
+                <SelectItem key={index} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <DisplayProducts

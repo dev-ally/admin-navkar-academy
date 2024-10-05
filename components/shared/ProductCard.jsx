@@ -32,7 +32,7 @@ const ProductCard = ({
 
     const loading = toast.loading("Deleting product...");
     try {
-      await remove(ref(db, `products/${pid}`));
+      await remove(ref(db, `products/${pclass}/${psubject}/${pid}`));
       await deleteProductFromStorage(`${pid}_coverImage`);
       await deleteProductFromStorage(`${pid}_pdfFile`);
       toast.success("Product deleted successfully!", { id: loading });
@@ -86,7 +86,7 @@ const ProductCard = ({
                 variant="outline"
                 className="text-black w-full border-2 border-accent"
               >
-                <Link href={`products/${pid}`}>
+                <Link href={`products/${pclass}/${psubject}/${pid}`}>
                   <Pencil />
                 </Link>
               </Button>

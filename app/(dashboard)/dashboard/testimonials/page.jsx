@@ -339,32 +339,34 @@ const Page = () => {
 
   return (
     <Container>
-      <div className="flex justify-between">
-        <h1 className="font-bold py-2 text-center text-3xl md:text-4xl flex items-center gap-2">
-          Testimonials
-        </h1>
-        <Dialog
-          testimonial={testimonial}
-          handleChange={handleChange}
-          addHandler={addTestimonialHandler}
-          updateHandler={updateTestimonialHandler}
-          editMode={editMode}
-          isOpen={isOpen}
-          setIsOpen={setIsOpen}
-          setEditMode={setEditMode}
-          setTestimonial={setTestimonial}
-        />
-      </div>
-      <div className="">
-        <div className="grid grid-cols-1 md:grid-cols-3  gap-y-4 mt-6">
-          {testimonialData.map((testimonial) => (
-            <TestimonialCard
-              key={testimonial.id}
-              data={testimonial}
-              handleDelete={handleDelete}
-              handleEdit={() => handleEdit(testimonial)}
-            />
-          ))}
+      <div className="my-10 flex flex-col px-6">
+        <div className="flex justify-between">
+          <h1 className="font-bold py-2 text-center text-3xl md:text-4xl flex items-center gap-2">
+            Testimonials.
+          </h1>
+          <Dialog
+            testimonial={testimonial}
+            handleChange={handleChange}
+            addHandler={addTestimonialHandler}
+            updateHandler={updateTestimonialHandler}
+            editMode={editMode}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            setEditMode={setEditMode}
+            setTestimonial={setTestimonial}
+          />
+        </div>
+        <div className="">
+          <div className="grid grid-cols-1 md:grid-cols-3  gap-y-4 mt-6">
+            {testimonialData.map((testimonial) => (
+              <TestimonialCard
+                key={testimonial.id}
+                data={testimonial}
+                handleDelete={handleDelete}
+                handleEdit={() => handleEdit(testimonial)}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </Container>

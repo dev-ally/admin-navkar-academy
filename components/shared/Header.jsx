@@ -90,6 +90,24 @@ const Header = () => {
             >
               <Link href="/dashboard/products">Products</Link>
             </div>
+            <div
+              className={
+                pathname === "/dashboard/teachers"
+                  ? "custom-header-underline"
+                  : "custom-header-hover-underline"
+              }
+            >
+              <Link href="/dashboard/teachers">Teachers</Link>
+            </div>
+            <div
+              className={
+                pathname === "/dashboard/testimonials"
+                  ? "custom-header-underline"
+                  : "custom-header-hover-underline"
+              }
+            >
+              <Link href="/dashboard/testimonials">Testmonials</Link>
+            </div>
             <div>
               <Button variant="header" onClick={signOutHandler}>
                 LogOut
@@ -144,12 +162,10 @@ const Header = () => {
                         pathname === "/dashboard/products" && "font-semibold"
                       }`}
                     >
-                      <Link href="/dashboard/events">Products</Link>
+                      <Link href="/dashboard/products">Products</Link>
                     </div>
                     <div
-                      className={`text-black text-lg tracking-wide ${
-                        pathname === "/dashboard/events" && "font-semibold"
-                      }`}
+                      className={`text-black text-lg tracking-wide`}
                     >
                       <Button variant="header" onClick={signOutHandler}>
                         LogOut
@@ -171,7 +187,7 @@ const Header = () => {
                   </div>
                   <div className="w-full h-[2px] bg-black/10 rounded-full my-6" />
                   {/* CTA Information */}
-                  <div className="flex flex-col gap-4">
+                  {/* <div className="flex flex-col gap-4">
                     <div>
                       <h3 className="text-[18px] font-semibold">Call:</h3>
                       <a
@@ -200,13 +216,13 @@ const Header = () => {
                         Demo Address, Maharashtra
                       </a>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </SheetContent>
             </Sheet>
           </div>
           {/* CTA Information */}
-          <div className="hidden lg:items-center h-full lg:flex lg:gap-10 w-fit">
+          {/* <div className="hidden lg:items-center h-full lg:flex lg:gap-10 w-fit">
             <div>
               <h3 className="text-[18px] font-semibold">Call:</h3>
               <a
@@ -237,7 +253,7 @@ const Header = () => {
                 Demo Address, Maharashtra
               </a>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="w-full h-[2px] bg-black/10 rounded-full my-4" />
       </div>

@@ -13,6 +13,9 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
 
+import * as pdfjsLib from "pdfjs-dist/build/pdf";
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/legacy/build/pdf.worker.min.mjs`;
+
 const ProductPage = () => {
   const [productData, setProductData] = useState({
     pid: "",
@@ -27,7 +30,13 @@ const ProductPage = () => {
     pprice: "",
     pcreatedAt: new Date().toISOString().split("T")[0],
   });
+  const [previewNote, setPreviewNote] = useState(null);
   const [addingProduct, setAddingProduct] = useState(false);
+  const [startPage, setStartPage] = useState(0);
+  const [endPage, setEndPage] = useState(0);
+  const [pages, setPages] = useState("");
+  const [pdfFile, setPdfFile] = useState(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   const { pclass, psubject, productId } = useParams();
   const router = useRouter();
@@ -35,7 +44,15 @@ const ProductPage = () => {
   useEffect(() => {
     if (productId !== "add") {
       const fetchProductData = async () => {
-        const productRef = refDB(db, "products/" + pclass + "/" + decodeURIComponent(psubject) + "/" + productId);
+        const productRef = refDB(
+          db,
+          "products/" +
+            pclass +
+            "/" +
+            decodeURIComponent(psubject) +
+            "/" +
+            productId
+        );
         onValue(productRef, (snapshot) => {
           const data = snapshot.val();
           console.log("DATA", data);
@@ -54,164 +71,11 @@ const ProductPage = () => {
           const data = snapshot.val();
           console.log("NOTE DATA", data);
           setProductData({ ...productData, ppdf: data?.ppdf });
-        })
+        });
       };
       fetchProductData();
     }
   }, [productId, router, pclass, psubject, productData]);
-
-  // const productActionHandler = async (e) => {
-  //   e.preventDefault();
-  //   console.log("PRODUCT ACTION HANDLER");
-  //   console.log("PRODUCTDATA", productData);
-
-  //   if (productId !== "add") {
-  //     const loading = toast.loading("Updating Product...");
-  //     setAddingProduct(true);
-  //     console.log("UPDATING");
-  //     console.log("PRODUCTDATA", productData);
-  //     try {
-  //       await update(refDB(db, `products/${productId}`), {
-  //         ...productData,
-  //       });
-  //       toast.success("Product updated successfully!", {
-  //         id: loading,
-  //       });
-  //       router.push("/dashboard/products");
-  //     } catch (error) {
-  //       console.error("Error updating product:", error);
-  //       toast.error("Failed to update product. Please try again.", {
-  //         id: loading,
-  //       });
-  //     } finally {
-  //       setAddingProduct(false);
-  //     }
-  //     return;
-  //   }
-
-  //   const loading = toast.loading("Adding Product: 00.00%");
-  //   setAddingProduct(true);
-
-  //   if (
-  //     productData.pcoverImg === "" ||
-  //     productData.ppdf === "" ||
-  //     productData.ptitle === "" ||
-  //     productData.pdescription === "" ||
-  //     productData.pclass === "" ||
-  //     productData.psubject === "" ||
-  //     productData.pprice === ""
-  //   ) {
-  //     toast.error("Please fill all the fields", {
-  //       id: loading,
-  //     });
-  //     return;
-  //   }
-
-  //   if (productData?.pcoverImg.size > 5000000) {
-  //     toast.error("Please upload an image smaller than 5MB", {
-  //       id: loading,
-  //     });
-  //     setAddingProduct(false);
-  //     return;
-  //   }
-
-  //   if (productData?.ppdf.type !== "application/pdf") {
-  //     toast.error("Please upload a PDF file", {
-  //       id: loading,
-  //     });
-  //     setAddingProduct(false);
-  //     return;
-  //   }
-
-  //   const newProductId = uuidv4();
-
-  //   setProductData({
-  //     ...productData,
-  //     pid: newProductId,
-  //   });
-
-  //   console.log("PCOVERIMG", productData.pcoverImg);
-
-  //   const storageRef = ref(storage, `products/${newProductId}`);
-  //   const uploadTask = uploadBytesResumable(storageRef, productData.pcoverImg);
-
-  //   uploadTask.on(
-  //     "state_changed",
-  //     (snapshot) => {
-  //       const progress =
-  //         (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-  //       console.log("Upload is " + progress + "% done");
-  //       toast.loading(`Adding Product: ${progress.toFixed(2)}%`, {
-  //         id: loading,
-  //       });
-  //       switch (snapshot.state) {
-  //         case "paused":
-  //           console.log("Upload is paused");
-  //           break;
-  //         case "running":
-  //           console.log("Upload is running");
-  //           break;
-  //       }
-  //     },
-  //     (error) => {
-  //       // Handle unsuccessful uploads
-  //       toast.error("Failed to upload image. Please try again.", {
-  //         id: loading,
-  //       });
-  //       setAddingProduct(false); // Reset addingEvent if upload fails
-  //     },
-  //     async () => {
-  //       // Handle successful uploads on complete
-  //       await getDownloadURL(uploadTask.snapshot.ref).then(
-  //         async (downloadURL) => {
-  //           console.log("File available at", downloadURL);
-  //           setProductData((prevData) => ({
-  //             ...prevData,
-  //             pdownloadCoverUrl: downloadURL,
-  //           }));
-
-  //           // Add the event to the database once the download URL is available
-  //           const addDataToDb = await addProductToDB({
-  //             pid: newProductId,
-  //             ptitle: productData.ptitle,
-  //             pdescription: productData.pdescription,
-  //             pcoverImg: downloadURL,
-  //             pclass: productData.pclass,
-  //             psubject: productData.psubject,
-  //             pprice: productData.pprice,
-  //             pcreatedAt: productData.pcreatedAt,
-  //           });
-
-  //           console.log("ADD DATA TO DB", addDataToDb);
-
-  //           if (addDataToDb) {
-  //             toast.success("Product added successfully!", {
-  //               id: loading,
-  //             });
-
-  //             router.push("/dashboard/products"); // Redirect to events page after successful addition
-  //           } else {
-  //             toast.error("Failed to add product. Please try again later.", {
-  //               id: loading,
-  //             });
-  //           }
-
-  //           setAddingProduct(false); // Reset addingEvent after successful addition
-  //         }
-  //       );
-  //     }
-  //   );
-
-  //   // Clear the form after adding the event
-  //   setProductData({
-  //     ptitle: "",
-  //     pdescription: "",
-  //     pcoverImg: "",
-  //     pclass: "",
-  //     psubject: "",
-  //     pprice: "",
-  //   });
-  // };
 
   const productActionHandler = async (e) => {
     e.preventDefault();
@@ -335,9 +199,9 @@ const ProductPage = () => {
           psubject: productData.psubject,
           pprice: productData.pprice,
           pcreatedAt: new Date().toISOString().split("T")[0],
-        }
-      }
-      console.log("LOCALDATA", localData)
+        },
+      };
+      console.log("LOCALDATA", localData);
 
       // Once both URLs are available, add the product to the database
       const addDataToDb = await addProductToDB({
@@ -392,6 +256,66 @@ const ProductPage = () => {
     });
   };
 
+  const pdfUploadHandler = async (e) => {
+    console.log(e.target.files[0]);
+    setProductData({
+      ...productData,
+      ppdf: e.target.files[0],
+    });
+    const uri = URL.createObjectURL(e.target.files[0]);
+    console.log("CONVERTING", uri);
+
+    const pdf = await pdfjsLib.getDocument({ url: uri });
+
+    await pdf.promise.then(
+      async (_pdf) => {
+        // Added async here
+        const {
+          _pdfInfo: { numPages },
+        } = _pdf;
+        setPages(numPages);
+        setPdfFile(_pdf);
+        // Set StartPage and EndPage
+        setStartPage(1);
+        setEndPage(numPages);
+        console.log("PDF", _pdf);
+      },
+      (error) => {
+        console.log("PDF error :", error);
+      }
+    );
+  };
+
+  const onConvert = async () => {
+    const uri = URL.createObjectURL(selectedFile);
+    console.log("CONVERTING", uri);
+
+    const pdf = await pdfjsLib.getDocument({ url: uri });
+
+    await pdf.promise.then(
+      async (_pdf) => {
+        // Added async here
+        const {
+          _pdfInfo: { numPages },
+        } = _pdf;
+        setPages(numPages);
+        setPdfFile(_pdf);
+        console.log("PDF", _pdf);
+
+        // Upload specified range of images to Firebase
+        for (let i = startPage - 1; i < endPage && i < pages; i++) {
+          // Adjusted loop for specified range
+          // const imageRef = ref(storage, `images/page-${i}.png`); // Create a reference for each image
+          // await uploadString(imageRef, img[i], "data_url"); // Upload the image
+          console.log(`Uploaded page-${i}.png to Firebase Storage`);
+        }
+      },
+      (error) => {
+        console.log("PDF error :", error);
+      }
+    );
+  };
+
   return (
     <Container>
       <div className="flex justify-center items-center w-full py-6">
@@ -424,7 +348,7 @@ const ProductPage = () => {
               )}
               {productId === "add" && (
                 <div className="flex flex-col gap-6 w-full">
-                  {productData?.pcoverImg ? (
+                  {/* {productData?.pcoverImg ? (
                     <div className="min-h-[200px] rounded-md px-6 py-8 bg-emerald-400/40 w-full flex flex-col md:flex-row justify-center items-center gap-8 cursor-pointer">
                       <Image
                         src={URL.createObjectURL(productData.pcoverImg)}
@@ -476,7 +400,7 @@ const ProductPage = () => {
                         }}
                       />
                     </>
-                  )}
+                  )} */}
                   {productData?.ppdf ? (
                     <div className="min-h-[200px] rounded-md px-6 py-8 bg-emerald-400/40 w-full flex flex-col md:flex-row justify-center items-center gap-8 cursor-pointer">
                       {/* <Image
@@ -486,16 +410,13 @@ const ProductPage = () => {
                         alt="Product PDF"
                         className="w-fit max-h-[200px] object-contain"
                       /> */}
-                      <iframe
-                        src={URL.createObjectURL(productData.ppdf)}
-                        className="w-fit max-h-[200px]"
-                      ></iframe>
-                      <div className="flex flex-col gap-2 justify-center">
-                        <span className="text-xl font-bold my-4">
-                          PDF Uploaded Successfully
-                        </span>
+                      <div className="w-[50%] flex flex-col gap-2 justify-center">
+                        <iframe
+                          src={URL.createObjectURL(productData.ppdf)}
+                          className="min-h-[400px] h-full"
+                        ></iframe>
                         <button
-                          className="px-4 py-2 border-2 border-black hover:bg-black/80 hover:text-white transition-all duration-300 ease-in-out rounded-full"
+                          className="mt-4 px-4 py-2 border-2 border-black hover:bg-black/80 hover:text-white transition-all duration-300 ease-in-out rounded-full"
                           onClick={(e) => {
                             e.preventDefault();
                             setProductData({ ...productData, ppdf: "" });
@@ -503,6 +424,42 @@ const ProductPage = () => {
                         >
                           Remove
                         </button>
+                      </div>
+                      <div className="w-[50%] flex flex-col gap-2 justify-center">
+                        <span className="text-xl font-bold mb-4">
+                          PDF Uploaded Successfully
+                        </span>
+                        <span className="text-xl">
+                          Preview Images Range:
+                          {/* Start Page - End Page */}
+                          {startPage} - {endPage}
+                        </span>
+                        <div className="w-full flex gap-4">
+                          <input
+                            type="number"
+                            min={startPage}
+                            max={endPage}
+                            placeholder="Start Page..."
+                            required
+                            className="w-[50%] h-[40px] px-4 py-2 bg-transparent border-[3px] border-black rounded-md placeholder:text-black/60"
+                          />
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="End Page..."
+                            required
+                            className="w-[50%] h-[40px] px-4 py-2 bg-transparent border-[3px] border-black rounded-md placeholder:text-black/60"
+                          />
+                        </div>
+                        <button className="mt-4 px-4 py-2 border-2 border-black hover:bg-black/80 hover:text-white transition-all duration-300 ease-in-out rounded-full">
+                          Preview
+                        </button>
+                        {previewNote &&
+                          previewNote.map((img) => (
+                            <div key={img} className="w-full flex gap-4">
+                              <img src={img} className="text-xl font-bold" />
+                            </div>
+                          ))}
                       </div>
                     </div>
                   ) : (
@@ -515,22 +472,13 @@ const ProductPage = () => {
                         <span className="text-sm text-black/50 font-semibold">
                           Click here to upload PDF!
                         </span>
-                        <span className="text-sm text-black/50 font-semibold">
-                          Landscape Orientation (1000 x 700)
-                        </span>
                       </label>
                       <input
                         type="file"
                         id="productPdf"
                         // accept=""
                         className="hidden"
-                        onChange={(e) => {
-                          console.log(e.target.files[0]);
-                          setProductData({
-                            ...productData,
-                            ppdf: e.target.files[0],
-                          });
-                        }}
+                        onChange={pdfUploadHandler}
                       />
                     </>
                   )}
@@ -626,10 +574,10 @@ const ProductPage = () => {
                     value={productData.pcreatedAt}
                     className="w-full border-2 border-gray-300 rounded-md p-2"
                     disabled
-                  // value={eventData.date}
-                  // onChange={(e) =>
-                  //   setEventData({ ...eventData, date: e.target.value })
-                  // }
+                    // value={eventData.date}
+                    // onChange={(e) =>
+                    //   setEventData({ ...eventData, date: e.target.value })
+                    // }
                   />
                 </div>
                 <div>
@@ -681,7 +629,7 @@ const ProductPage = () => {
             <Button
               type="submit"
               className="w-full mt-8 p-3 bg-black text-white hover:bg-gray-800 transition-all duration-300 ease-in-out rounded-md"
-            // disabled={addingEvent}
+              // disabled={addingEvent}
             >
               {addingProduct ? (
                 <div className="flex justify-center items-center gap-2">

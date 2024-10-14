@@ -6,7 +6,10 @@ const DisplayTeacher = ({ data, handleDelete }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-14">
       {data.map((teacher) => (
-        <div key={teacher.id} className="flex flex-col items-center">
+        <div
+          key={teacher.id}
+          className="flex flex-col items-center justify-end h-full"
+        >
           <div className="rounded-t-full border-4 hover:border-accent transition-all duration-300 overflow-hidden">
             <div className="p-4 overflow-hidden flex justify-center items-center ">
               <Image
@@ -14,7 +17,7 @@ const DisplayTeacher = ({ data, handleDelete }) => {
                 alt={`${teacher.name} Profile`}
                 width={1000}
                 height={1000}
-                className="w-[90%] md:w-full"
+                className="w-[90%] md:w-full rounded-t-full"
               />
             </div>
             <div className="w-full flex justify-center items-center flex-col p-3 pt-0">

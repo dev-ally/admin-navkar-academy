@@ -43,10 +43,12 @@ const Teachers = () => {
 
   if (teachersData === null) {
     return (
-      <h1 className="font-medium py-2 text-center text-2xl flex items-center gap-2 mb-6 md:mb-8">
-        <LoaderCircle className="animate-spin" />
-        Loading Teachers
-      </h1>
+      <div className="w-full flex justify-center items-center h-full mt-6">
+        <h1 className="font-medium py-2 text-center text-2xl flex items-center gap-2 mb-6 md:mb-8">
+          <LoaderCircle className="animate-spin" />
+          Loading Teachers
+        </h1>
+      </div>
     );
   }
 
@@ -101,7 +103,7 @@ const Teachers = () => {
       <div className="my-10 flex flex-col px-6">
         <div className="flex justify-between items-center">
           <h1 className="font-bold py-2 text-center text-3xl md:text-4xl flex items-center gap-2 mb-6 md:mb-8">
-            Teachers
+            Teachers.
           </h1>
           <Button asChild>
             <Link href="/dashboard/teachers/add">Add Teacher</Link>

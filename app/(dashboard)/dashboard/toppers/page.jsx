@@ -20,6 +20,7 @@ import { database, storage } from "@/firebase/config";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import toast from "react-hot-toast";
 import Dialog from "@/components/private/Dialog";
+import Container from "@/components/shared/Container";
 
 const App = () => {
   const [topperLists, setTopperLists] = useState({});
@@ -395,162 +396,177 @@ const App = () => {
   };
 
   return (
-    <div className="h-screen p-10 md:flex gap-4">
-      <div className="md:w-1/2 w-full">
-        <div className="bg-gray-100 p-4 rounded-md mb-4 border">
-          <h3 className="text-2xl font-bold mb-2">Add Top 3 Toppers</h3>
-          <input
-            type="text"
-            placeholder="Name"
-            name="name"
-            value={newTop3.name}
-            onChange={(e) => handleInputChange(e, "top3")}
-            className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
-          />
-          <input
-            type="text"
-            placeholder="Percentage"
-            name="percentage"
-            value={newTop3.percentage}
-            onChange={(e) => handleInputChange(e, "top3")}
-            className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
-          />
-          <input
-            type="text"
-            placeholder="Year (YYYY)"
-            name="year"
-            value={newTop3.year}
-            onChange={(e) => handleInputChange(e, "top3")}
-            className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
-            disabled={selectedYear !== null}
-          />
-          <input
-            type="file"
-            id="eventImage"
-            accept="image/*"
-            className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
-            ref={fileInputRef} // Attach the ref here
-            onChange={(e) => {
-              console.log(e.target.files[0]);
-              setNewTop3((prev) => ({ ...prev, image: e.target.files[0] }));
-            }}
-          />
-
-          <Button
-            onClick={() => addTopper("top3")}
-            className="bg-[#f27436] text-white p-2 rounded-md w-full hover:bg-[#f27436]/[0.9]"
-          >
-            Add Topper
-          </Button>
+    <Container>
+      <div className="my-10 flex flex-col px-6 gap-4">
+        <div className="flex justify-between">
+          <h1 className="font-bold py-2 text-center text-3xl md:text-4xl flex items-center gap-2">
+            Testimonials.
+          </h1>
         </div>
-        <div className="bg-gray-100 p-4 rounded-md border-2">
-          <h3 className="text-2xl font-bold mb-2">Add Other Toppers</h3>
-          <input
-            type="text"
-            placeholder="Name"
-            name="name"
-            value={newOtherTopper.name}
-            onChange={(e) => handleInputChange(e, "others")}
-            className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
-          />
-          <input
-            type="text"
-            placeholder="Percentage"
-            name="percentage"
-            value={newOtherTopper.percentage}
-            onChange={(e) => handleInputChange(e, "others")}
-            className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
-          />
+        <div className="h-screen md:flex gap-4">
+          <div className="md:w-1/2 w-full">
+            <div className="bg-gray-100 p-4 rounded-md mb-4 border">
+              <h3 className="text-2xl font-bold mb-2">Add Top 3 Toppers</h3>
+              <input
+                type="text"
+                placeholder="Name"
+                name="name"
+                value={newTop3.name}
+                onChange={(e) => handleInputChange(e, "top3")}
+                className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Percentage"
+                name="percentage"
+                value={newTop3.percentage}
+                onChange={(e) => handleInputChange(e, "top3")}
+                className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Year (YYYY)"
+                name="year"
+                value={newTop3.year}
+                onChange={(e) => handleInputChange(e, "top3")}
+                className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+                disabled={selectedYear !== null}
+              />
+              <input
+                type="file"
+                id="eventImage"
+                accept="image/*"
+                className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+                ref={fileInputRef} // Attach the ref here
+                onChange={(e) => {
+                  console.log(e.target.files[0]);
+                  setNewTop3((prev) => ({
+                    ...prev,
+                    image: e.target.files[0],
+                  }));
+                }}
+              />
 
-          <input
-            type="text"
-            placeholder="Year (YYYY)"
-            name="year"
-            value={newOtherTopper.year}
-            onChange={(e) => handleInputChange(e, "others")}
-            className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
-            disabled={selectedYear !== null}
-          />
-          <Button
-            onClick={() => addTopper("others")}
-            className="bg-[#f27436] text-white p-2 rounded-md w-full hover:bg-[#f27436]/[0.9]"
-          >
-            Add Topper
-          </Button>
-        </div>
-      </div>
+              <Button
+                onClick={() => addTopper("top3")}
+                className="bg-[#f27436] text-white p-2 rounded-md w-full hover:bg-[#f27436]/[0.9]"
+              >
+                Add Topper
+              </Button>
+            </div>
+            <div className="bg-gray-100 p-4 rounded-md border-2">
+              <h3 className="text-2xl font-bold mb-2">Add Other Toppers</h3>
+              <input
+                type="text"
+                placeholder="Name"
+                name="name"
+                value={newOtherTopper.name}
+                onChange={(e) => handleInputChange(e, "others")}
+                className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+              />
+              <input
+                type="text"
+                placeholder="Percentage"
+                name="percentage"
+                value={newOtherTopper.percentage}
+                onChange={(e) => handleInputChange(e, "others")}
+                className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+              />
 
-      {/* Right Column: Toppers List */}
-      <div className="w-full md:w-1/2 bg-gray-100 rounded-lg">
-        {selectedYear ? (
-          <div className="flex flex-col gap-4">
-            <Button
-              onClick={() => {
-                setSelectedYear(null);
-                setAnimation("slide-out");
-                setNewTop3((prev) => ({ ...prev, year: "" }));
-                setNewOtherTopper((prev) => ({ ...prev, year: "" }));
-              }}
-              variant="header"
-              className="mb-4 flex items-center gap-2 border-2 border-black p-2 rounded-md text-black hover:bg-[#f27436]"
-            >
-              <ArrowLeft /> Back
-            </Button>
-
-            <ToppersList
-              year={selectedYear}
-              topperLists={topperLists[selectedYear]}
-              handleDragStart={handleDragStart}
-              handleDragEnd={handleDragEnd}
-              handleDragOver={handleDragOver}
-              handleDrop={handleDrop}
-              sortToppers={sortToppers}
-              animation={animation}
-              // handleSave={handleSave}
-              saveTop3={saveTop3}
-              saveOthers={saveOthers}
-              // isSaveEnabled={isSaveEnabled}
-              isTop3Changed={isTop3Changed}
-              isOthersChanged={isOthersChanged}
-              handleDelete={handleDelete}
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <h1 className="text-2xl font-bold p-4">
-              {Object.keys(topperLists).length > 0
-                ? "Select a Year"
-                : "No Toppers Added Yet"}
-            </h1>
-            <div
-              className={`flex flex-col gap-3 ${
-                selectedYear !== null ? "border" : ""
-              } p-4 rounded-md`}
-            >
-              {Object.keys(topperLists).map((year) => (
-                <div className="   rounded-md  hover:text-white flex items-center gap-2  ">
-                  <Button
-                    key={year}
-                    onClick={() => {
-                      setSelectedYear(year);
-                      setAnimation("slide-in");
-                      setNewTop3((prev) => ({ ...prev, year }));
-                      setNewOtherTopper((prev) => ({ ...prev, year }));
-                    }}
-                    variant="header"
-                    className="w-11/12 hover:bg-[#f27436]/[0.9]"
-                  >
-                    Year {year}
-                    <RiArrowRightLine className="animate-pulse w-5 h-5" />
-                  </Button>
-                  <Dialog handleDelete={deleteYear} year={year} />
-                </div>
-              ))}
+              <input
+                type="text"
+                placeholder="Year (YYYY)"
+                name="year"
+                value={newOtherTopper.year}
+                onChange={(e) => handleInputChange(e, "others")}
+                className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
+                disabled={selectedYear !== null}
+              />
+              <Button
+                onClick={() => addTopper("others")}
+                className="bg-[#f27436] text-white p-2 rounded-md w-full hover:bg-[#f27436]/[0.9]"
+              >
+                Add Topper
+              </Button>
             </div>
           </div>
-        )}
+
+          {/* Right Column: Toppers List */}
+          <div className="w-full md:w-1/2 bg-gray-100 rounded-lg">
+            {selectedYear ? (
+              <div className="flex flex-col gap-4">
+                <Button
+                  onClick={() => {
+                    setSelectedYear(null);
+                    setAnimation("slide-out");
+                    setNewTop3((prev) => ({ ...prev, year: "" }));
+                    setNewOtherTopper((prev) => ({ ...prev, year: "" }));
+                  }}
+                  variant="header"
+                  className="mb-4 flex items-center gap-2 border-2 border-black p-2 rounded-md text-black hover:bg-[#f27436]"
+                >
+                  <ArrowLeft /> Back
+                </Button>
+
+                <ToppersList
+                  year={selectedYear}
+                  topperLists={topperLists[selectedYear]}
+                  handleDragStart={handleDragStart}
+                  handleDragEnd={handleDragEnd}
+                  handleDragOver={handleDragOver}
+                  handleDrop={handleDrop}
+                  sortToppers={sortToppers}
+                  animation={animation}
+                  // handleSave={handleSave}
+                  saveTop3={saveTop3}
+                  saveOthers={saveOthers}
+                  // isSaveEnabled={isSaveEnabled}
+                  isTop3Changed={isTop3Changed}
+                  isOthersChanged={isOthersChanged}
+                  handleDelete={handleDelete}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <h1 className="text-2xl font-bold p-4">
+                  {Object.keys(topperLists).length > 0
+                    ? "Select a Year"
+                    : "No Toppers Added Yet"}
+                </h1>
+                <div
+                  className={`flex flex-col gap-3 ${
+                    selectedYear !== null ? "border" : ""
+                  } p-4 rounded-md`}
+                >
+                  {Object.keys(topperLists).map((year) => (
+                    <div
+                      key={year}
+                      className="rounded-md hover:text-white flex items-center gap-2"
+                    >
+                      <Button
+                        key={year}
+                        onClick={() => {
+                          setSelectedYear(year);
+                          setAnimation("slide-in");
+                          setNewTop3((prev) => ({ ...prev, year }));
+                          setNewOtherTopper((prev) => ({ ...prev, year }));
+                        }}
+                        variant="header"
+                        className="w-11/12 hover:bg-[#f27436]/[0.9]"
+                      >
+                        Year {year}
+                        <RiArrowRightLine className="animate-pulse w-5 h-5" />
+                      </Button>
+                      <Dialog handleDelete={deleteYear} year={year} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </Container>
   );
 };
 

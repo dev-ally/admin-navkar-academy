@@ -207,7 +207,7 @@ const Page = () => {
             selectedSubject={selectedSubject}
           />
         </div>
-        <div className="flex gap-4">
+        {/* <div className="flex gap-4">
           <Dropdown
             trigger="Class"
             options={classesWithSubjects.map((c) => c.class)}
@@ -220,7 +220,7 @@ const Page = () => {
             onChange={handleSubjectChange}
             className="w-[180px]"
           />
-        </div>
+        </div> */}
       </div>
     </Container>
   );

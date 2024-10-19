@@ -3,11 +3,21 @@
 import deleteEventFromStorage from "@/actions/events/deleteEventFromStorage";
 import Container from "@/components/shared/Container";
 import { Button } from "@/components/ui/button";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { db, storage } from "@/firebase/config";
-import Autoplay from "embla-carousel-autoplay";
-import { child, get, onValue, ref as refDB, remove, runTransaction, set, update } from "firebase/database";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  onValue,
+  ref as refDB,
+  remove,
+  runTransaction,
+  set,
+  update,
+} from "firebase/database";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 import { Check, LoaderCircle, Plus, Trash } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -98,39 +108,41 @@ const EventInfoPage = () => {
       return;
     }
 
-    // [
-    // "https://firebasestorage.googleapis.com/v0/b/navkar-academy.appspot.com/o/events%2F2025%3A02%3A20-20%3A00_new-testing-event_12?alt=media&token=c413dad1-70e3-4e2a-bbb2-57487aaefcba",
-    // "https://firebasestorage.googleapis.com/v0/b/navkar-academy.appspot.com/o/events%2F2025%3A02%3A20-20%3A00_new-testing-event_1?alt=media&token=e0feea6c-8bc6-4016-964f-0fba2ffbef63",
-    // "https://firebasestorage.googleapis.com/v0/b/navkar-academy.appspot.com/o/events%2F2025%3A02%3A20-20%3A00_new-testing-event_3?alt=media&token=8d23e6e6-35ad-484a-a2e9-ea8747a638d0"
-    // ]
+    // Get all existing numbers from the download URLs
+    const existingNumbers =
+      eventData?.downloadUrl.map((url) => {
+        const parts = url.split(" ");
+        return parseInt(parts[1].split("_")[2]); // Extract the number
+      }) || [];
 
-    // This is how te images are stored in the database, I want 12 to come at last as it is the greatest numvber among , 3, and 12
-    // I want to sort it in descending order and then get the first element and then split it by _ and get the last element and then split it by ? and get the first element
-    // const maxNumUploaded = parseInt(eventData?.downloadUrl.sort((a, b) => a - b).reverse()[0].split("_").pop().split("?")[0]) || 0;
-    const maxNumUploaded = parseInt(
-      eventData?.downloadUrl
-        .map(url => parseInt(url.split("_").pop().split("?")[0])) // Extract numbers
-        .sort((a, b) => b - a) // Sort numerically in descending order
-      [0] // Get the first element (maximum)
-    );
-    // const maxNumUploaded = parseInt(eventData?.downloadUrl.sort().reverse()[0].split("_").pop().split("?")[0]) || 0;
-    // console.log("UPDATTINGNG", eventData?.downloadUrl.sort((a, b) => a - b).reverse())
-    console.log("MAXNUMUPLOADED", maxNumUploaded);
+    // Find the next available number in sequence
+    let nextNumUploaded =
+      existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
 
     const uploadPromises = updateImages.map(async (image, index) => {
+      // Use nextNumUploaded instead of maxNumUploaded
       const storageRef = ref(
         storage,
-        `events/${decodeURIComponent(eventSlug)}_${eventData?.downloadUrl.length + maxNumUploaded + index + 1}`
+        `events/${decodeURIComponent(eventSlug)}_${nextNumUploaded + index}_${
+          image.type.split("/")[1]
+        }`
       );
 
       try {
         await uploadBytes(storageRef, image);
         const downloadURL = await getDownloadURL(storageRef);
-        const eventRef = refDB(db, '/events/' + decodeURIComponent(eventSlug) + '/downloadUrl');
+        const eventRef = refDB(
+          db,
+          "/events/" + decodeURIComponent(eventSlug) + "/downloadUrl"
+        );
 
         await runTransaction(eventRef, (event) => {
           if (event) {
-            event.push(downloadURL);
+            event.push(
+              `${downloadURL} ${eventData?.eventSlug}_${
+                nextNumUploaded + index
+              }_${image.type.split("/")[1]}`
+            );
           }
           return event;
         });
@@ -167,23 +179,24 @@ const EventInfoPage = () => {
 
     let loading = toast.loading("Deleting event...");
 
-    const deleteFromStorage = await deleteEventFromStorage(
-      decodeURIComponent(eventSlug)
-    );
+    eventData?.downloadUrl?.map(async (image) => {
+      let fileName = image.split(" ")[1];
+      const deleteFromStorage = await deleteEventFromStorage(fileName);
 
-    if (!deleteFromStorage) {
-      toast.error(
-        "Failed to delete event from database. Please try again later.",
-        {
-          id: loading,
-        }
-      );
-      setDeletingEvent(false); // Reset deletingEvent if there's an error
-      return;
-    }
+      if (!deleteFromStorage) {
+        toast.error(
+          "Failed to delete event from database. Please try again later.",
+          {
+            id: loading,
+          }
+        );
+        setDeletingEvent(false); // Reset deletingEvent if there's an error
+        return;
+      }
+    });
 
     // Define the reference to the event in the database
-    const eventRef = refDB(db, `events/${decodeURIComponent(eventSlug)}`);
+    const eventRef = refDB(db, `events/${eventData?.eventSlug}`);
 
     // Delete the event in the database
     try {
@@ -207,19 +220,21 @@ const EventInfoPage = () => {
 
   const deleteUploadedImage = async (e, image) => {
     e.preventDefault();
-    const deleting = toast.loading("Deleting image...")
+    console.log("IMAGE", image);
+    let type = image.split(" ")[1].split("_")[3];
+    const deleting = toast.loading(`Deleting ${type}...`);
     if (eventData?.downloadUrl.length <= 1) {
-      toast.error("Cannot delete last image", {
-        id: deleting
+      toast.error(`Cannot delete last ${type}`, {
+        id: deleting,
       });
-      return
+      return;
     }
 
-    if (!confirm("Are you sure you want to delete this image?")) {
+    if (!confirm(`Are you sure you want to delete this ${type}?`)) {
       toast.error("Image deletion cancelled", {
-        id: deleting
+        id: deleting,
       });
-      return
+      return;
     }
 
     // File Url - https://firebasestorage.googleapis.com/v0/b/navkar-academy.appspot.com/o/events%2F2025%3A02%3A20-08%3A00_again-demo-here..._1?alt=media&token=4afca00d-40bf-4a38-ad07-a4454485f851
@@ -228,13 +243,19 @@ const EventInfoPage = () => {
 
     // events%2F2025%3A02%3A20-10%3A00_demo-testing-event-multiple_1?alt=media&token=0aec37ff-2461-4a3e-b424-9be4f9afbb2
     // events%2F2025%3A02%3A20-10%3A00_demo-testing-event-multiple_3
-    const imageStorageName = decodeURIComponent(image).split("/").pop().split("?")[0];
-    console.log("IMAGESTORAGENAME", imageStorageName)
+    const imageStorageName = decodeURIComponent(image)
+      .split("/")
+      .pop()
+      .split("?")[0];
+    console.log("IMAGESTORAGENAME", imageStorageName);
     const storageRef = ref(storage, "events/" + imageStorageName);
 
-    await deleteObject(storageRef)
+    await deleteObject(storageRef);
 
-    const eventRef = refDB(db, '/events/' + decodeURIComponent(eventSlug) + '/downloadUrl');
+    const eventRef = refDB(
+      db,
+      "/events/" + decodeURIComponent(eventSlug) + "/downloadUrl"
+    );
 
     await runTransaction(eventRef, (event) => {
       if (event) {
@@ -252,10 +273,10 @@ const EventInfoPage = () => {
       return event;
     });
 
-    toast.success("Image deleted successfully!", {
-      id: deleting
-    })
-  }
+    toast.success(`${type} deleted successfully!`, {
+      id: deleting,
+    });
+  };
 
   return (
     <Container>
@@ -267,50 +288,95 @@ const EventInfoPage = () => {
             <div className="flex flex-col gap-2 mb-4">
               <span>Saved Images: {eventData.downloadUrl.length}</span>
               <span>Uploaded Images: {updateImages.length}</span>
-              <span>Total Images: {eventData.downloadUrl.length + updateImages.length} / 10</span>
+              <span>
+                Total Images:{" "}
+                {eventData.downloadUrl.length + updateImages.length} / 10
+              </span>
             </div>
             <div className="grid grid-cols-3 gap-4 justify-center items-center w-full">
-              {/* {eventData.downloadUrl.length > 0 && eventData.downloadUrl.map((image, index) => (
-                <Image key={index} src={image} alt="Event Image" width={1000} height={1000} className="w-full h-[300px] object-contain" />
-              ))
-              } */}
-              {
-                eventData?.downloadUrl.map((image, index) => (
+              {eventData?.downloadUrl.map((image, index) => (
+                <div key={index} className="relative">
+                  <Button
+                    className="absolute top-[10px] right-[10px] p-2 rounded-full bg-accent text-white text-lg z-50"
+                    onClick={(e) => deleteUploadedImage(e, image)}
+                  >
+                    <Trash />
+                  </Button>
+                  <div className="absolute top-2 left-2 text-emerald-600 bg-white border-2 border-white rounded-full">
+                    <Check />
+                  </div>
+                  {image.split(" ")[1].split("_")[3] == "mp4" ? (
+                    <video
+                      src={image}
+                      alt="Event Video"
+                      className="w-full max-h-[300px] object-contain"
+                      controls
+                    />
+                  ) : (
+                    <Image
+                      src={image}
+                      alt="Event Image"
+                      width={1000}
+                      height={1000}
+                      className="w-full max-h-[300px] object-contain"
+                    />
+                  )}
+                </div>
+              ))}
+              {Array.isArray(updateImages) &&
+                updateImages.length > 0 &&
+                updateImages.map((image, index) => (
                   <div key={index} className="relative">
-                    <Button className="absolute bottom-[10px] right-[10px] p-2 rounded-full bg-accent text-white text-lg" onClick={(e) => deleteUploadedImage(e, image)}>
+                    <Button
+                      className="absolute top-[10px] right-[10px] p-2 rounded-full bg-accent text-white text-lg z-50"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setUpdateImages(
+                          updateImages.filter((_, i) => i !== index)
+                        );
+                      }}
+                    >
                       <Trash />
                     </Button>
-                    <div className="absolute top-2 left-2 text-emerald-600 bg-white border-2 border-white rounded-full">
-                      <Check />
-                    </div>
-                    <Image src={image} alt="Event Image" width={1000} height={1000} className="w-full max-h-[300px] object-contain" />
+                    {image.type === "video/mp4" ? (
+                      <video
+                        src={URL.createObjectURL(image)}
+                        alt="Event Video"
+                        className="w-full max-h-[300px] object-contain"
+                        controls
+                      />
+                    ) : (
+                      <Image
+                        src={URL.createObjectURL(image)}
+                        alt="Event Image"
+                        width={1000}
+                        height={1000}
+                        className="w-full max-h-[300px] object-contain"
+                      />
+                    )}
                   </div>
-                ))
-              }
-              {
-                Array.isArray(updateImages) && updateImages.length > 0 && updateImages.map((image, index) => (
-                  <div key={index} className="relative">
-                    <Button className="absolute bottom-[10px] right-[10px] p-2 rounded-full bg-accent text-white text-lg" onClick={(e) => {
-                      e.preventDefault();
-                      setUpdateImages(updateImages.filter((_, i) => i !== index))
-                    }}>
-                      <Trash />
-                    </Button>
-                    <Image src={URL.createObjectURL(image)} alt="Event Image" width={1000} height={1000} className="w-full max-h-[300px] object-contain" />
-                  </div>
-                ))
-              }
-              {
-                eventData.downloadUrl.length + updateImages.length < 10 && (
-                  <div className="w-full h-full flex justify-center items-center">
-                    <label htmlFor="updateEventImage" className="text-xl font-semibold text-black border-2 border-accent rounded-md flex justify-center items-center gap-2 cursor-pointer p-4 flex-col">
-                      <Plus />
-                      <span>Add More Images</span>
-                    </label>
-                    <input type="file" accept="image/*" id="updateEventImage" multiple className="hidden" onChange={(e) => setUpdateImages([...updateImages, ...e.target.files])} />
-                  </div>
-                )
-              }
+                ))}
+              {eventData.downloadUrl.length + updateImages.length < 10 && (
+                <div className="w-full h-full flex justify-center items-center">
+                  <label
+                    htmlFor="updateEventImage"
+                    className="text-xl font-semibold text-black border-2 border-accent rounded-md flex justify-center items-center gap-2 cursor-pointer p-4 flex-col"
+                  >
+                    <Plus />
+                    <span>Add More Images</span>
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    id="updateEventImage"
+                    multiple
+                    className="hidden"
+                    onChange={(e) =>
+                      setUpdateImages([...updateImages, ...e.target.files])
+                    }
+                  />
+                </div>
+              )}
             </div>
 
             {/* Title Input */}
@@ -392,10 +458,14 @@ const EventInfoPage = () => {
                 <Button
                   type="submit"
                   onClick={updateEventHandler}
-                  disabled={updateImages.length === 0 || eventData.downloadUrl.length + updateImages.length > 10} // Disable button while adding event
-                  className={`w-full bg-accent text-white font-semibold hover:bg-orange-500/90 duration-300 ease-in-out rounded-md p-2 mt-6 ${updatingEvent &&
+                  disabled={
+                    updateImages.length === 0 ||
+                    eventData.downloadUrl.length + updateImages.length > 10
+                  } // Disable button while adding event
+                  className={`w-full bg-accent text-white font-semibold hover:bg-orange-500/90 duration-300 ease-in-out rounded-md p-2 mt-6 ${
+                    updatingEvent &&
                     "bg-orange-500/50 text-white cursor-not-allowed"
-                    }`}
+                  }`}
                 >
                   {updatingEvent ? (
                     <LoaderCircle className="animate-spin" />
@@ -407,16 +477,18 @@ const EventInfoPage = () => {
             )}
 
             <div
-              className={`flex justify-center items-center ${updateEvent ? "mt-1" : "mt-6"
-                }`}
+              className={`flex justify-center items-center ${
+                updateEvent ? "mt-1" : "mt-6"
+              }`}
             >
               <Button
                 onClick={deleteEventHandler}
                 disabled={deletingEvent}
-                className={`w-full bg-red-500 text-white font-semibold hover:bg-red-500/90 duration-300 ease-in-out rounded-md p-2 mt-6 ${deletingEvent
-                  ? "opacity-50 text-white cursor-not-allowed"
-                  : ""
-                  }`}
+                className={`w-full bg-red-500 text-white font-semibold hover:bg-red-500/90 duration-300 ease-in-out rounded-md p-2 mt-6 ${
+                  deletingEvent
+                    ? "opacity-50 text-white cursor-not-allowed"
+                    : ""
+                }`}
               >
                 {deletingEvent ? (
                   <LoaderCircle className="animate-spin" />

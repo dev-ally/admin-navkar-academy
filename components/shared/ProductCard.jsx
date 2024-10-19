@@ -10,6 +10,8 @@ import toast from "react-hot-toast";
 import { ref, remove } from "firebase/database";
 import { db } from "@/firebase/config";
 import { useRouter } from "next/navigation";
+import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 const ProductCard = ({
   pid,
@@ -27,6 +29,8 @@ const ProductCard = ({
     e.preventDefault();
 
     if (!confirm("Are you sure you want to delete this product?")) return;
+    console.log("PCOVERIMG", pcoverImg);
+    // return;
 
     setDeletingEvent(true);
 
@@ -50,13 +54,36 @@ const ProductCard = ({
     <div className="border-2 border-black/80 rounded-lg h-full">
       <div className="flex w-full flex-col md:flex-row h-full">
         <div className="w-full md:w-[40%] flex justify-center items-center">
-          <Image
+          {/* <Image
             src={pcoverImg}
             alt="Product Cover Image"
             width={1000}
             height={1000}
             className="w-[90%] md:w-full h-full object-cover rounded-lg md:rounded-l-lg"
-          />
+          /> */}
+          <Carousel
+            plugins={[
+              Autoplay({
+                delay: 2000,
+              }),
+            ]}
+          >
+            <CarouselContent>
+              {Array.isArray(pcoverImg) &&
+                pcoverImg.length > 0 &&
+                pcoverImg.map((img) => (
+                  <CarouselItem key={img}>
+                    <Image
+                      src={img}
+                      alt="Product Cover Image"
+                      width={1000}
+                      height={1000}
+                      className="w-[200px] md:w-full h-full object-cover rounded-lg md:rounded-l-lg"
+                    />
+                  </CarouselItem>
+                ))}
+            </CarouselContent>
+          </Carousel>
         </div>
         <div className="w-full md:w-[60%] px-4 py-6 flex flex-col justify-between">
           <div className="flex flex-col flex-grow">

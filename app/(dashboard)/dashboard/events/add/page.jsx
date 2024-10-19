@@ -51,7 +51,7 @@ const AddEvents = () => {
     }
 
     if (eventData.image.length > 10) {
-      toast.error("Atmost 10 Images are allowed!", {
+      toast.error("Atmost 10 Images/Videos are allowed!", {
         id: loading,
       });
       setAddingEvent(false); // Reset addingEvent if there's an error
@@ -74,6 +74,28 @@ const AddEvents = () => {
       return;
     }
 
+    // Go through every file in the image array and check if it contains files with type image/png, image/jpeg, or video/mp4, no other type is allowed
+    for (let i = 0; i < eventData.image.length; i++) {
+      const file = eventData.image[i];
+      if (
+        !(
+          file.type === "image/png" ||
+          file.type === "image/jpeg" ||
+          file.type === "image/jpg" ||
+          file.type === "video/mp4"
+        )
+      ) {
+        toast.error(
+          "Please upload only images or videos with .png, .jpg, .jpeg, .mp4 extensions.",
+          {
+            id: loading,
+          }
+        );
+        setAddingEvent(false); // Reset addingEvent if there's an error
+        return;
+      }
+    }
+
     // Generate createdAt timestamp
     const today = new Date();
     const createdAt = `${today.getFullYear()}:${String(
@@ -84,11 +106,10 @@ const AddEvents = () => {
       today.getSeconds()
     ).padStart(2, "0")}`;
 
-    const eventDateAndTime = `${eventData.date.split("-").join(":")}-${eventData.time
-      }`;
+    const eventDateAndTime = `${eventData.date.split("-").join(":")}-${
+      eventData.time
+    }`;
     console.log("EVENT DATE AND TIME", eventDateAndTime);
-
-    // const storageRef = ;
 
     // Paths must be non-empty strings and can't contain ".", "#", "$", "[", or "]"
     setEventData({
@@ -96,29 +117,43 @@ const AddEvents = () => {
       eventSlug:
         eventDateAndTime +
         "_" +
-        eventData.title.toLowerCase().trim().replace(/[.\#$\[\]\/]/g, "").replace(/\s/g, "-"),
+        eventData.title
+          .toLowerCase()
+          .trim()
+          .replace(/[.\#$\[\]\/]/g, "")
+          .replace(/\s/g, "-"),
       createdAt,
     });
 
     // Upload each image and get the download URL
     for (let i = 0; i < eventData.image.length; i++) {
       const image = eventData.image[i];
-      const uploadTask = uploadBytesResumable(ref(
-        storage,
-        `events/${eventDateAndTime}_${eventData.title
-          .toLowerCase()
-          .trim()
-          .replace(/\s/g, "-")}_${i + 1}`
-      ), image);
+      console.log("IMAGE", image);
+      const uploadTask = uploadBytesResumable(
+        ref(
+          storage,
+          `events/${eventDateAndTime}_${eventData.title
+            .toLowerCase()
+            .trim()
+            .replace(/\s/g, "-")}_${i + 1}_${image.type.split("/")[1]}`
+        ),
+        image
+      );
 
       await new Promise((resolve, reject) => {
         uploadTask.on(
           "state_changed",
           (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            toast.loading(`Uploading asset ${i + 1} of ${eventData.image.length}: ${Math.round(progress)}%`, {
-              id: loading,
-            }); // Update loading toast with progress
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            toast.loading(
+              `Uploading asset ${i + 1} of ${
+                eventData.image.length
+              }: ${Math.round(progress)}%`,
+              {
+                id: loading,
+              }
+            ); // Update loading toast with progress
           },
           (error) => {
             // Handle unsuccessful uploads
@@ -131,7 +166,12 @@ const AddEvents = () => {
           async () => {
             // Handle successful uploads on complete
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            downloadUrls.push(downloadURL);
+            downloadUrls.push(
+              `${downloadURL} ${eventDateAndTime}_${eventData.title
+                .toLowerCase()
+                .trim()
+                .replace(/\s/g, "-")}_${i + 1}_${image.type.split("/")[1]}`
+            ); // Include the file name with the download URL
             resolve();
           }
         );
@@ -147,7 +187,11 @@ const AddEvents = () => {
       eventSlug:
         eventDateAndTime +
         "_" +
-        eventData.title.toLowerCase().trim().replace(/[.\#$\[\]\/]/g, "").replace(/\s/g, "-"),
+        eventData.title
+          .toLowerCase()
+          .trim()
+          .replace(/[.\#$\[\]\/]/g, "")
+          .replace(/\s/g, "-"),
       createdAt,
     });
 
@@ -191,9 +235,12 @@ const AddEvents = () => {
               {Array.isArray(eventData.image) && eventData.image.length > 0 ? (
                 <div className="min-h-[200px] rounded-md px-6 py-8 bg-emerald-400/40 w-full flex justify-center items-center flex-col">
                   <div className="grid grid-cols-3 justify-center gap-6">
-                    {
-                      eventData.image.map((image, index) => (
-                        <div key={index} className="flex flex-col justify-between items-center gap-x-2 gap-y-4">
+                    {eventData.image.map((image, index) => (
+                      <div
+                        key={index}
+                        className="flex flex-col justify-between items-center gap-x-2 gap-y-4"
+                      >
+                        {image?.type?.split("/")[0] === "image" ? (
                           <Image
                             src={URL.createObjectURL(image)}
                             width={1000}
@@ -201,28 +248,58 @@ const AddEvents = () => {
                             alt="Event Image"
                             className="w-full max-h-[200px] object-contain"
                           />
-                          <button
-                            className="w-fit px-4 py-2 border-2 border-black hover:bg-black/80 hover:text-white transition-all duration-300 ease-in-out rounded-full"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              // Remove the specific image by filtering out the clicked one
-                              setEventData((prevData) => ({
-                                ...prevData,
-                                image: prevData.image.filter((_, i) => i !== index),
-                              }));
-                            }}
-                          >
-                            <Trash />
-                          </button>
-                        </div>
-                      ))
-                    }
+                        ) : (
+                          <>
+                            <video
+                              src={URL.createObjectURL(image)}
+                              width={1000}
+                              height={1000}
+                              alt="Event Video"
+                              className="w-full max-h-[200px] object-contain"
+                              autoPlay
+                              controls
+                            />
+                          </>
+                        )}
+                        <button
+                          className="w-fit px-4 py-2 border-2 border-black hover:bg-black/80 hover:text-white transition-all duration-300 ease-in-out rounded-full"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            // Remove the specific image by filtering out the clicked one
+                            setEventData((prevData) => ({
+                              ...prevData,
+                              image: prevData.image.filter(
+                                (_, i) => i !== index
+                              ),
+                            }));
+                          }}
+                        >
+                          <Trash />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <label htmlFor="eventImage" className="my-2 mt-8 border-2 border-black text-lg font-medium rounded-full px-4 py-2 hover:bg-black hover:text-white duration-200 transition-all ease-in-out cursor-pointer">Upload More</label>
-                  <input type="file" id="eventImage" accept="image/*" className="hidden" multiple
+                  <label
+                    htmlFor="eventImage"
+                    className="my-2 mt-8 border-2 border-black text-lg font-medium rounded-full px-4 py-2 hover:bg-black hover:text-white duration-200 transition-all ease-in-out cursor-pointer"
+                  >
+                    Upload More
+                  </label>
+                  <input
+                    type="file"
+                    id="eventImage"
+                    className="hidden"
+                    accept="image/*,video/*"
+                    multiple
                     onChange={(e) => {
                       console.log("E", e.target.files);
-                      setEventData({ ...eventData, image: [...eventData.image, ...Array.from(e.target.files)] });
+                      setEventData({
+                        ...eventData,
+                        image: [
+                          ...eventData.image,
+                          ...Array.from(e.target.files),
+                        ],
+                      });
                     }}
                   />
                 </div>
@@ -232,20 +309,25 @@ const AddEvents = () => {
                     htmlFor="eventImage"
                     className="w-full border-2 rounded-md border-orange-400/80 bg-orange-400/20 flex flex-col gap-2 justify-center items-center px-10 h-[200px] cursor-pointer"
                   >
-                    <span className="text-xl font-bold">Upload Image</span>
+                    <span className="text-xl font-bold">
+                      Upload Image/Video
+                    </span>
                     <span className="text-sm text-black/50 font-semibold">
-                      Click here to upload image!
+                      Click here to upload image/video!
                     </span>
                   </label>
                   <input
                     type="file"
                     id="eventImage"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     className="hidden"
                     multiple
                     onChange={(e) => {
                       console.log(e.target.files);
-                      setEventData({ ...eventData, image: Array.from(e.target.files) });
+                      setEventData({
+                        ...eventData,
+                        image: Array.from(e.target.files),
+                      });
                     }}
                   />
                 </>
@@ -332,25 +414,6 @@ const AddEvents = () => {
                 }
               />
             </div>
-
-            {/* Description Input */}
-            {/* <div>
-              <label
-                htmlFor="eventDescription"
-                className="block text-lg font-semibold mt-6"
-              >
-                Description
-              </label>
-              <textarea
-                id="eventDescription"
-                placeholder="Enter event description"
-                className="w-full border-2 border-gray-300 rounded-md p-2 h-[150px]"
-                value={eventData.description}
-                onChange={(e) =>
-                  setEventData({ ...eventData, description: e.target.value })
-                }
-              />
-            </div> */}
 
             {/* Submit Button */}
             <Button

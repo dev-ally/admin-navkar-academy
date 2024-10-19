@@ -10,7 +10,13 @@ import {
 import Image from "next/image";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
 const Card = ({
@@ -31,25 +37,48 @@ const Card = ({
         className="w-full h-full object-cover rounded-t-md"
       /> */}
       <div className="max-h-[300px] flex justify-center items-center">
-        <Carousel className="w-full max-w-[200px] max-h-[300px]" plugins={[
-          Autoplay({
-            delay: 4000,
-          }),
-        ]}>
-          <CarouselContent>
-            {eventImg?.length > 0 && eventImg?.map((image, index) => (
-              <CarouselItem key={index}>
-                <div className="p-1 h-fit">
-                  <Image
-                    width={1000}
-                    height={300}
-                    src={image}
-                    alt="Event Image"
-                    className="h-[300px] object-contain rounded-t-md"
-                  />
-                </div>
-              </CarouselItem>
-            ))}
+        <Carousel
+          className="w-full max-w-[200px] max-h-[300px]"
+          plugins={[
+            Autoplay({
+              delay: 2000,
+            }),
+          ]}
+        >
+          <CarouselContent className="h-full items-center">
+            {eventImg?.length > 0 &&
+              eventImg?.map((image, index) => {
+                console.log(
+                  "IMAGE SINGLE",
+                  image,
+                  image.split(" ")[1]?.split("_")[3]
+                );
+                return (
+                  <CarouselItem
+                    key={index}
+                    className="w-full h-full flex justify-center items-center"
+                  >
+                    <div className="p-1 pt-2 w-full flex justify-center items-center">
+                      {image.split(" ")[1].split("_")[3] === "mp4" ? (
+                        <video
+                          src={image?.split(" ")[0]}
+                          autoPlay
+                          controls
+                          className="max-h-[300px] w-fit object-contain"
+                        />
+                      ) : (
+                        <Image
+                          width={1000}
+                          height={300}
+                          src={image.split(" ")[0]}
+                          alt="Event Image"
+                          className="max-h-[300px] w-fit object-contain rounded-t-md"
+                        />
+                      )}
+                    </div>
+                  </CarouselItem>
+                );
+              })}
           </CarouselContent>
           <CarouselPrevious />
           <CarouselNext />
@@ -73,30 +102,42 @@ const Card = ({
             </AlertDialogHeader>
             <div className="w-[100%] h-[3px] rounded-full my-2 bg-accent mx-auto md:mx-0" />
             <div className="w-full flex justify-center items-center flex-col gap-3">
-              <Carousel className="w-[80%] max-h-[300px]" plugins={[
-                Autoplay({
-                  delay: 4000,
-                }),
-              ]}>
+              <Carousel
+                className="w-[80%] max-h-[300px]"
+                plugins={[
+                  Autoplay({
+                    delay: 4000,
+                  }),
+                ]}
+              >
                 <CarouselContent>
-                  {eventImg?.length > 0 && eventImg?.map((image, index) => (
-                    <CarouselItem key={index}>
-                      <div className="p-1 h-fit">
-                        <Image
-                          width={1000}
-                          height={300} // Set height to 300
-                          src={image}
-                          alt="Event Image"
-                          className="h-[300px] object-contain rounded-t-md" // Set height to 300px and use object-cover
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
+                  {eventImg?.length > 0 &&
+                    eventImg?.map((image, index) => (
+                      <CarouselItem key={index}>
+                        <div className="p-1 w-fit h-fit">
+                          {image.split(" ")[1].split("_")[3] === "mp4" ? (
+                            <video
+                              src={image?.split(" ")[0]}
+                              autoPlay
+                              controls
+                            />
+                          ) : (
+                            <Image
+                              width={1000}
+                              height={300}
+                              src={image.split(" ")[0]}
+                              alt="Event Image"
+                              className="h-[300px] w-full max-w-[440px] object-contain rounded-t-md"
+                            />
+                          )}
+                        </div>
+                      </CarouselItem>
+                    ))}
                 </CarouselContent>
                 <CarouselPrevious />
                 <CarouselNext />
               </Carousel>
-              <div className="text-base text-primary">
+              <div className="text-base text-primary mt-4">
                 <div className="mb-3">
                   <span className="font-bold">Location</span> - {eventLocation}
                 </div>

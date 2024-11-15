@@ -30,7 +30,7 @@ const SignIn = () => {
       });
       return;
     } else {
-      console.log(email, password);
+      // console.log(email, password);
       await signInWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           // Signed in
@@ -38,7 +38,7 @@ const SignIn = () => {
           toast.success("Admin signed in successfully", {
             id: message,
           });
-          console.log("User:", user);
+          // console.log("User:", user);
           router.push("/");
           // ...
         })
@@ -48,7 +48,7 @@ const SignIn = () => {
           toast.error("Invalid credentials", {
             id: message,
           });
-          console.log("Error signing in:", errorCode, errorMessage);
+          console.error("Error signing in:", errorCode, errorMessage);
         });
     }
     setEmail("");
@@ -57,7 +57,7 @@ const SignIn = () => {
 
   const resetHandler = async () => {
     let emailToReset = prompt("Enter your email to reset password");
-    console.log("Resetting password");
+    // console.log("Resetting password");
     let loading = toast.loading("Sending Reset Password Email...");
     await sendPasswordResetEmail(auth, emailToReset)
       .then(() => {

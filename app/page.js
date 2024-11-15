@@ -25,7 +25,7 @@ export default function Home() {
         toast.error(err.message, {
           id: loading,
         });
-        console.log(err);
+        // console.log(err);
       });
   };
 

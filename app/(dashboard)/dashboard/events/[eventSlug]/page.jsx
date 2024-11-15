@@ -48,7 +48,7 @@ const EventInfoPage = () => {
 
     const unsubscribe = onValue(eventsRef, (snapshot) => {
       const data = snapshot.val();
-      console.log("DATA", data);
+      // console.log("DATA", data);
       if (data) {
         setEventData({
           title: data.title || "",
@@ -60,7 +60,7 @@ const EventInfoPage = () => {
           createdAt: data.createdAt || "",
         });
         setFetchedData(data);
-        console.log("DATA", data);
+        // console.log("DATA", data);
       } else {
         router.push("/dashboard/events");
       }
@@ -220,7 +220,7 @@ const EventInfoPage = () => {
 
   const deleteUploadedImage = async (e, image) => {
     e.preventDefault();
-    console.log("IMAGE", image);
+    // console.log("IMAGE", image);
     let type = image.split(" ")[1].split("_")[3];
     const deleting = toast.loading(`Deleting ${type}...`);
     if (eventData?.downloadUrl.length <= 1) {
@@ -247,7 +247,7 @@ const EventInfoPage = () => {
       .split("/")
       .pop()
       .split("?")[0];
-    console.log("IMAGESTORAGENAME", imageStorageName);
+    // console.log("IMAGESTORAGENAME", imageStorageName);
     const storageRef = ref(storage, "events/" + imageStorageName);
 
     await deleteObject(storageRef);
@@ -260,15 +260,15 @@ const EventInfoPage = () => {
     await runTransaction(eventRef, (event) => {
       if (event) {
         // event.push(downloadURL);
-        console.log("EVENT", event);
+        // console.log("EVENT", event);
 
         // get the index of the image to be deleted
         const index = event.findIndex((url) => url === image);
-        console.log("INDEX", index);
+        // console.log("INDEX", index);
 
         // remove the image from the array
         event.splice(index, 1);
-        console.log("EVENT", event);
+        // console.log("EVENT", event);
       }
       return event;
     });

@@ -9,7 +9,7 @@ const deleteProductFromStorage = async (pid) => {
   await deleteObject(productRef)
     .then(() => {
       // File deleted successfully
-      console.log("File deleted successfully");
+      // console.log("File deleted successfully");
       deleted = true;
     })
     .catch((error) => {

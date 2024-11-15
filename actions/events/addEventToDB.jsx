@@ -21,7 +21,7 @@ const addEventToDB = async ({
     createdAt,
   })
     .then(() => {
-      console.log("Event added to DB");
+      // console.log("Event added to DB");
       // return true;
       added = true;
     })

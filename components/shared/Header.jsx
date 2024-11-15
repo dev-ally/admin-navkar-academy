@@ -19,19 +19,19 @@ import { signOut } from "firebase/auth";
 
 const Header = () => {
   const pathname = usePathname();
-  console.log(pathname, typeof pathname);
+  // console.log(pathname, typeof pathname);
 
   const router = useRouter();
 
   const signOutHandler = () => {
-    console.log("SignOut Handler");
+    // console.log("SignOut Handler");
     signOut(auth)
       .then(() => {
         router.push("/sign-in");
         // Sign-out successful.
       })
       .catch((error) => {
-        console.log("Error Occured!", error);
+        // console.log("Error Occured!", error);
         // An error happened.
       });
   };
@@ -164,9 +164,7 @@ const Header = () => {
                     >
                       <Link href="/dashboard/products">Products</Link>
                     </div>
-                    <div
-                      className={`text-black text-lg tracking-wide`}
-                    >
+                    <div className={`text-black text-lg tracking-wide`}>
                       <Button variant="header" onClick={signOutHandler}>
                         LogOut
                       </Button>

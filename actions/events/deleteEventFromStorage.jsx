@@ -9,7 +9,7 @@ const deleteEventFromStorage = async (eventSlug) => {
   await deleteObject(eventRef)
     .then(() => {
       // File deleted successfully
-      console.log("File deleted successfully");
+      // console.log("File deleted successfully");
       deleted = true;
     })
     .catch((error) => {

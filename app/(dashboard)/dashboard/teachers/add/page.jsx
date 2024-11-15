@@ -26,7 +26,7 @@ const AddTeachers = () => {
 
   const addTeacherHandler = async (e) => {
     e.preventDefault();
-    console.log(teacherData);
+    // console.log(teacherData);
 
     // Set addingEvent to true at the beginning of the process
     setAddingTeacher(true);
@@ -72,13 +72,13 @@ const AddTeachers = () => {
       (snapshot) => {
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + progress + "% done");
+        // console.log("Upload is " + progress + "% done");
         switch (snapshot.state) {
           case "paused":
-            console.log("Upload is paused");
+            // console.log("Upload is paused");
             break;
           case "running":
-            console.log("Upload is running");
+            // console.log("Upload is running");
             break;
         }
       },
@@ -93,7 +93,7 @@ const AddTeachers = () => {
         // Handle successful uploads on complete
         await getDownloadURL(uploadTask.snapshot.ref).then(
           async (downloadURL) => {
-            console.log("File available at", downloadURL);
+            // console.log("File available at", downloadURL);
             setTeacherData((prevData) => ({
               ...prevData,
               downloadUrl: downloadURL,
@@ -105,7 +105,7 @@ const AddTeachers = () => {
                 ...teacherData,
                 downloadUrl: downloadURL,
               });
-              console.log("Teacher added to DB");
+              // console.log("Teacher added to DB");
               toast.success("Teacher added successfully!", {
                 id: loading,
               });
@@ -185,7 +185,7 @@ const AddTeachers = () => {
                     accept="image/*"
                     className="hidden"
                     onChange={(e) => {
-                      console.log(e.target.files[0]);
+                      // console.log(e.target.files[0]);
                       setTeacherData({
                         ...teacherData,
                         image: e.target.files[0],

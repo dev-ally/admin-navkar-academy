@@ -19,7 +19,7 @@ const addProductToDB = async ({
     ...data,
   })
     .then(() => {
-      console.log("Product added to DB");
+      // console.log("Product added to DB");
       // return true;
       added = true;
     })

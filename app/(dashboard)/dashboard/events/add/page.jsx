@@ -28,7 +28,7 @@ const AddEvents = () => {
 
   const addEventHandler = async (e) => {
     e.preventDefault();
-    console.log(eventData);
+    // console.log(eventData);
 
     // Set addingEvent to true at the beginning of the process
     setAddingEvent(true);
@@ -66,13 +66,13 @@ const AddEvents = () => {
       return;
     }
 
-    if (eventData.date < new Date().toISOString().split("T")[0]) {
-      toast.error("Please select a valid date.", {
-        id: loading,
-      });
-      setAddingEvent(false);
-      return;
-    }
+    // if (eventData.date < new Date().toISOString().split("T")[0]) {
+    //   toast.error("Please select a valid date.", {
+    //     id: loading,
+    //   });
+    //   setAddingEvent(false);
+    //   return;
+    // }
 
     // Go through every file in the image array and check if it contains files with type image/png, image/jpeg, or video/mp4, no other type is allowed
     for (let i = 0; i < eventData.image.length; i++) {
@@ -109,7 +109,7 @@ const AddEvents = () => {
     const eventDateAndTime = `${eventData.date.split("-").join(":")}-${
       eventData.time
     }`;
-    console.log("EVENT DATE AND TIME", eventDateAndTime);
+    // console.log("EVENT DATE AND TIME", eventDateAndTime);
 
     // Paths must be non-empty strings and can't contain ".", "#", "$", "[", or "]"
     setEventData({
@@ -128,7 +128,7 @@ const AddEvents = () => {
     // Upload each image and get the download URL
     for (let i = 0; i < eventData.image.length; i++) {
       const image = eventData.image[i];
-      console.log("IMAGE", image);
+      // console.log("IMAGE", image);
       const uploadTask = uploadBytesResumable(
         ref(
           storage,
@@ -195,7 +195,7 @@ const AddEvents = () => {
       createdAt,
     });
 
-    console.log("ADD DATA TO DB", addDataToDb);
+    // console.log("ADD DATA TO DB", addDataToDb);
 
     if (addDataToDb) {
       toast.success("Event added successfully!", {
@@ -292,7 +292,7 @@ const AddEvents = () => {
                     accept="image/*,video/*"
                     multiple
                     onChange={(e) => {
-                      console.log("E", e.target.files);
+                      // console.log("E", e.target.files);
                       setEventData({
                         ...eventData,
                         image: [
@@ -323,7 +323,7 @@ const AddEvents = () => {
                     className="hidden"
                     multiple
                     onChange={(e) => {
-                      console.log(e.target.files);
+                      // console.log(e.target.files);
                       setEventData({
                         ...eventData,
                         image: Array.from(e.target.files),
@@ -367,7 +367,7 @@ const AddEvents = () => {
                   <input
                     type="date"
                     id="eventDate"
-                    min={new Date().toISOString().split("T")[0]}
+                    // min={new Date().toISOString().split("T")[0]}
                     className="w-full border-2 border-gray-300 rounded-md p-2"
                     value={eventData.date}
                     onChange={(e) =>

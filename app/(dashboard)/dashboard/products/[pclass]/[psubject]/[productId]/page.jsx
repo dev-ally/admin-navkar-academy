@@ -82,7 +82,7 @@ const ProductPage = () => {
         );
         await onValue(productRef, (snapshot) => {
           const data = snapshot.val();
-          console.log("DATA", data);
+          // console.log("DATA", data);
 
           // if (!data) {
           //   toast.error("Product not found");
@@ -96,7 +96,7 @@ const ProductPage = () => {
 
         await onValue(noteRef, (snapshot) => {
           const data = snapshot.val();
-          console.log("NOTE DATA", data);
+          // console.log("NOTE DATA", data);
           // Update productData using a functional update to avoid stale closure
           setProductData((prevData) => ({ ...prevData, ppdf: data?.ppdf }));
           // setPpdf(data?.ppdf);
@@ -108,14 +108,14 @@ const ProductPage = () => {
 
   const productActionHandler = async (e) => {
     e.preventDefault();
-    console.log("PRODUCT ACTION HANDLER");
-    console.log("PRODUCTDATA", productData);
+    // console.log("PRODUCT ACTION HANDLER");
+    // console.log("PRODUCTDATA", productData);
 
     if (productId !== "add") {
       const loading = toast.loading("Updating Product...");
       setAddingProduct(true);
-      console.log("UPDATING");
-      console.log("PRODUCTDATA", productData);
+      // console.log("UPDATING");
+      // console.log("PRODUCTDATA", productData);
       try {
         await update(refDB(db, `products/${pclass}/${psubject}/${productId}`), {
           ...productData,
@@ -175,7 +175,7 @@ const ProductPage = () => {
           (snapshot) => {
             const progress =
               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log("Upload is " + progress + "% done");
+            // console.log("Upload is " + progress + "% done");
             toast.loading(`Uploading Note PDF: ${progress.toFixed(2)}%`, {
               id: loading,
             });
@@ -233,9 +233,9 @@ const ProductPage = () => {
             id: loading,
           });
           await uploadString(imageRef, imageData, "data_url");
-          console.log(
-            `Uploaded ${newProductId}_previewImage_${index}.png to Firebase Storage`
-          );
+          // console.log(
+          //   `Uploaded ${newProductId}_previewImage_${index}.png to Firebase Storage`
+          // );
           // uploadedPreviewImages.push(
 
           // );
@@ -247,8 +247,8 @@ const ProductPage = () => {
         productData.ppdf,
         `products/${newProductId}_pdfFile`
       );
-      console.log("PDF URL", pdfUrl);
-      console.log("PREVIEWIMAGEURLS", previewImageUrls);
+      // console.log("PDF URL", pdfUrl);
+      // console.log("PREVIEWIMAGEURLS", previewImageUrls);
       // return;
 
       const coverImgUrl = previewImageUrls; // Store all preview image URLs
@@ -270,7 +270,7 @@ const ProductPage = () => {
           pcreatedAt: new Date().toISOString().split("T")[0],
         },
       };
-      console.log("LOCALDATA", localData);
+      // console.log("LOCALDATA", localData);
 
       // Once both URLs are available, add the product to the database
       const addDataToDb = await addProductToDB({
@@ -327,7 +327,7 @@ const ProductPage = () => {
   };
 
   const pdfUploadHandler = async (e) => {
-    console.log(e.target.files[0]);
+    // console.log(e.target.files[0]);
     setProductData({
       ...productData,
       ppdf: e.target.files[0],
@@ -335,7 +335,7 @@ const ProductPage = () => {
     // setPpdf(e.target.files[0]);
     const uri = URL.createObjectURL(e.target.files[0]);
     setPpdfPreview(uri);
-    console.log("CONVERTING", uri);
+    // console.log("CONVERTING", uri);
 
     const pdf = await pdfjsLib.getDocument({ url: uri });
 
@@ -350,7 +350,7 @@ const ProductPage = () => {
         // Set StartPage and EndPage
         setStartPage(1);
         setEndPage(numPages);
-        console.log("PDF", _pdf);
+        // console.log("PDF", _pdf);
       },
       (error) => {
         console.log("PDF error :", error);
@@ -358,35 +358,35 @@ const ProductPage = () => {
     );
   };
 
-  const onConvert = async () => {
-    const uri = URL.createObjectURL(selectedFile);
-    console.log("CONVERTING", uri);
+  // const onConvert = async () => {
+  //   const uri = URL.createObjectURL(selectedFile);
+  //   console.log("CONVERTING", uri);
 
-    const pdf = await pdfjsLib.getDocument({ url: uri });
+  //   const pdf = await pdfjsLib.getDocument({ url: uri });
 
-    await pdf.promise.then(
-      async (_pdf) => {
-        // Added async here
-        const {
-          _pdfInfo: { numPages },
-        } = _pdf;
-        setPages(numPages);
-        setPdfFile(_pdf);
-        console.log("PDF", _pdf);
+  //   await pdf.promise.then(
+  //     async (_pdf) => {
+  //       // Added async here
+  //       const {
+  //         _pdfInfo: { numPages },
+  //       } = _pdf;
+  //       setPages(numPages);
+  //       setPdfFile(_pdf);
+  //       console.log("PDF", _pdf);
 
-        // Upload specified range of images to Firebase
-        for (let i = startPage - 1; i < endPage && i < pages; i++) {
-          // Adjusted loop for specified range
-          // const imageRef = ref(storage, `images/page-${i}.png`); // Create a reference for each image
-          // await uploadString(imageRef, img[i], "data_url"); // Upload the image
-          console.log(`Uploaded page-${i}.png to Firebase Storage`);
-        }
-      },
-      (error) => {
-        console.log("PDF error :", error);
-      }
-    );
-  };
+  //       // Upload specified range of images to Firebase
+  //       for (let i = startPage - 1; i < endPage && i < pages; i++) {
+  //         // Adjusted loop for specified range
+  //         // const imageRef = ref(storage, `images/page-${i}.png`); // Create a reference for each image
+  //         // await uploadString(imageRef, img[i], "data_url"); // Upload the image
+  //         console.log(`Uploaded page-${i}.png to Firebase Storage`);
+  //       }
+  //     },
+  //     (error) => {
+  //       console.log("PDF error :", error);
+  //     }
+  //   );
+  // };
 
   const previewNoteHandler = async (e) => {
     e.preventDefault();
@@ -399,7 +399,7 @@ const ProductPage = () => {
         pageNum <= Number(dEndPage);
         pageNum++
       ) {
-        console.log(`Previewing page ${pageNum} ${typeof pageNum}`);
+        // console.log(`Previewing page ${pageNum} ${typeof pageNum}`);
         const page = await pdfFile.getPage(pageNum);
         const viewport = page.getViewport({ scale: 1 });
         const canvas = document.createElement("canvas"); // Create a new canvas for each page
@@ -414,10 +414,10 @@ const ProductPage = () => {
         let renderTask = page.render(renderContext);
         await renderTask.promise;
         setPreviewNote((prev) => [...(prev || []), canvas.toDataURL()]); // Store all images in an array
-        console.log("PREVIEWNOTE", (prev) => [
-          ...(prev || []),
-          canvas.toDataURL(),
-        ]);
+        // console.log("PREVIEWNOTE", (prev) => [
+        //   ...(prev || []),
+        //   canvas.toDataURL(),
+        // ]);
       }
     } else {
       toast.error("Invalid page range. Please select a valid range.", {

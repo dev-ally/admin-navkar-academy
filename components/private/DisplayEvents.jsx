@@ -23,7 +23,7 @@ const DisplayEvents = () => {
             ...data[key],
           }))
           .reverse();
-        console.log("EVENTS", eventsArray);
+        // console.log("EVENTS", eventsArray);
         setEventData(eventsArray);
       } else {
         setEventData([]); // Clear the event data if no events found

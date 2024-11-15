@@ -2,7 +2,7 @@ import { storage } from "@/firebase/config";
 import { ref, deleteObject } from "firebase/storage";
 
 const deleteTeacherFromStorage = async (teacherId) => {
-  console.log("Deleting teacher with id: ", teacherId);
+  // console.log("Deleting teacher with id: ", teacherId);
   const teacherRef = ref(storage, `teachers/${teacherId}`);
   let deleted = false;
 
@@ -10,7 +10,7 @@ const deleteTeacherFromStorage = async (teacherId) => {
   await deleteObject(teacherRef)
     .then(() => {
       // File deleted successfully
-      console.log("File deleted successfully");
+      // console.log("File deleted successfully");
       deleted = true;
     })
     .catch((error) => {

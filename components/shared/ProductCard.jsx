@@ -29,7 +29,7 @@ const ProductCard = ({
     e.preventDefault();
 
     if (!confirm("Are you sure you want to delete this product?")) return;
-    console.log("PCOVERIMG", pcoverImg);
+    // console.log("PCOVERIMG", pcoverImg);
     // return;
 
     setDeletingEvent(true);

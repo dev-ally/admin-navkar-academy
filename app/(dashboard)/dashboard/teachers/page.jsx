@@ -31,8 +31,8 @@ const Teachers = () => {
           }))
           .reverse();
         setTeachersData(teachersArray);
-        console.log(teachersArray);
-        console.log("DATA", data);
+        // console.log(teachersArray);
+        // console.log("DATA", data);
       } else {
         setTeachersData([]); // Clear the event data if no events found
       }

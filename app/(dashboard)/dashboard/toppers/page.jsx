@@ -73,7 +73,7 @@ const App = () => {
         }));
 
         toast.success("Topper deleted successfully!");
-        console.log("Item successfully deleted!");
+        // console.log("Item successfully deleted!");
       } else {
         console.error("No such document exists!");
       }
@@ -111,7 +111,7 @@ const App = () => {
       );
 
       setIsTop3Changed(false);
-      console.log("Top 3 list updated successfully!");
+      // console.log("Top 3 list updated successfully!");
       toast.success("Top 3 list updated successfully!");
     } catch (error) {
       console.error("Error updating Top 3 list:", error);
@@ -134,7 +134,7 @@ const App = () => {
         { merge: true }
       );
       setIsOthersChanged(false);
-      console.log("Others list updated successfully!");
+      // console.log("Others list updated successfully!");
       toast.success("Others list updated successfully!");
     } catch (error) {
       console.error("Error updating Others list:", error);
@@ -151,7 +151,7 @@ const App = () => {
           return acc;
         }, {});
         setTopperLists(yearsData);
-        console.log("Fetched data:", yearsData);
+        // console.log("Fetched data:", yearsData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -209,7 +209,7 @@ const App = () => {
         [listType]: newList,
       },
     }));
-    console.log(topperLists[year][listType]);
+    // console.log(topperLists[year][listType]);
 
     setDraggingItem(null);
     // setIsSaveEnabled(true);
@@ -353,14 +353,14 @@ const App = () => {
         (snapshot) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
+          // console.log("Upload is " + progress + "% done");
         },
         (error) => {
-          console.error(error);
+          // console.error(error);
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          console.log("File available at", downloadURL);
+          // console.log("File available at", downloadURL);
           await updateStateAndDatabase(downloadURL);
         }
       );
@@ -392,7 +392,7 @@ const App = () => {
     } else {
       setIsOthersChanged(true);
     }
-    console.log("Sorted ", topperLists[year][listType]);
+    // console.log("Sorted ", topperLists[year][listType]);
   };
 
   return (
@@ -439,7 +439,7 @@ const App = () => {
                 className="border border-gray-300 p-2 mb-2 w-full rounded-lg"
                 ref={fileInputRef} // Attach the ref here
                 onChange={(e) => {
-                  console.log(e.target.files[0]);
+                  // console.log(e.target.files[0]);
                   setNewTop3((prev) => ({
                     ...prev,
                     image: e.target.files[0],

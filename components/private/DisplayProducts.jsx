@@ -14,7 +14,7 @@ const DisplayProducts = ({ selectedClass, selectedSubject }) => {
       const data = snapshot.val();
       if (data) {
         setProductsData(data);
-        console.log("DATA", data);
+        // console.log("DATA", data);
       } else {
         setProductsData({});
       }

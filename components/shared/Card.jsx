@@ -48,11 +48,11 @@ const Card = ({
           <CarouselContent className="h-full items-center">
             {eventImg?.length > 0 &&
               eventImg?.map((image, index) => {
-                console.log(
-                  "IMAGE SINGLE",
-                  image,
-                  image.split(" ")[1]?.split("_")[3]
-                );
+                // console.log(
+                //   "IMAGE SINGLE",
+                //   image,
+                //   image.split(" ")[1]?.split("_")[3]
+                // );
                 return (
                   <CarouselItem
                     key={index}

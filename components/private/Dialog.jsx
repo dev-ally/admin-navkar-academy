@@ -23,7 +23,7 @@ const Dialog = ({ handleDelete, year }) => {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete the year{" "}
-            <b>{year}</b> with it's toppers.
+            <b>{year}</b> with its toppers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

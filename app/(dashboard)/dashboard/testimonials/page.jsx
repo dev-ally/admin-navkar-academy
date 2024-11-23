@@ -67,8 +67,9 @@ const Dialog = ({
                   />
                 </label>
 
-                <label>
+                <label hidden={editMode}>
                   <span className="text-lg">Image</span>
+
                   <input
                     type="file"
                     name="image"
@@ -93,7 +94,7 @@ const Dialog = ({
                 </label>
                 {testimonial.designation === "Student" && (
                   <label>
-                    <span className="text-lg">10th Grade</span>
+                    <span className="text-lg">10th Grade Percentage</span>
                     <input
                       type="text"
                       name="tenthGrade"
